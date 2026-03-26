@@ -20,8 +20,11 @@
                     <div>
                         <x-input-label for="month" :value="__('Mese')" />
                         <select id="month" name="month" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1">
+                            @php
+                                $mesi = [1 => 'Gennaio', 2 => 'Febbraio', 3 => 'Marzo', 4 => 'Aprile', 5 => 'Maggio', 6 => 'Giugno', 7 => 'Luglio', 8 => 'Agosto', 9 => 'Settembre', 10 => 'Ottobre', 11 => 'Novembre', 12 => 'Dicembre'];
+                            @endphp
                             @for($i=1; $i<=12; $i++)
-                                <option value="{{ $i }}" @selected($i == $month)>{{ DateTime::createFromFormat('!m', $i)->format('F') }}</option>
+                                <option value="{{ $i }}" @selected($i == $month)>{{ $mesi[$i] }}</option>
                             @endfor
                         </select>
                     </div>
@@ -34,7 +37,24 @@
                         </select>
                     </div>
                     <div>
-                        <x-primary-button>{{ __('Filtra') }}</x-primary-button>
+                        <x-input-label for="category_id" :value="__('Categoria')" />
+                        <select id="category_id" name="category_id" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1">
+                            <option value="">Tutte le categorie</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}" @selected($category->id == $categoryId)>{{ $category->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <x-input-label class="invisible" :value="__('Azioni')" />
+                        <div class="flex items-center gap-2 mt-1 h-[42px]">
+                            <x-primary-button class="h-full">{{ __('Filtra') }}</x-primary-button>
+                            @if($categoryId)
+                                <a href="{{ route('dashboard', ['month' => $month, 'year' => $year]) }}" class="inline-flex items-center h-full px-4 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
+                                    {{ __('Mostra Tutte') }}
+                                </a>
+                            @endif
+                        </div>
                     </div>
                 </form>
             </div>
@@ -69,7 +89,7 @@
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-lg font-medium text-gray-900">Elenco Spese</h3>
                     <div class="flex gap-4">
-                        <a href="{{ route('export.csv', ['month' => $month, 'year' => $year]) }}" class="px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">Esporta CSV</a>
+                        <a href="{{ route('export.csv', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'sort_by' => $sortBy, 'sort_dir' => $sortDir]) }}" class="px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">Esporta CSV</a>
                         <a href="{{ route('expenses.create') }}" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">Inserisci Spesa</a>
                     </div>
                 </div>
@@ -77,10 +97,38 @@
                     <table class="w-full text-sm text-left text-gray-500">
                         <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3">Data</th>
-                                <th class="px-6 py-3">Categoria</th>
-                                <th class="px-6 py-3">Titolo</th>
-                                <th class="px-6 py-3">Importo</th>
+                                <th class="px-6 py-3">
+                                    <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'sort_by' => 'expense_date', 'sort_dir' => $sortBy == 'expense_date' && $sortDir == 'desc' ? 'asc' : 'desc']) }}" class="flex items-center gap-1 hover:text-indigo-600">
+                                        Data
+                                        @if($sortBy == 'expense_date')
+                                            <span>{!! $sortDir == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
+                                        @endif
+                                    </a>
+                                </th>
+                                <th class="px-6 py-3">
+                                    <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'sort_by' => 'category', 'sort_dir' => $sortBy == 'category' && $sortDir == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center gap-1 hover:text-indigo-600">
+                                        Categoria
+                                        @if($sortBy == 'category')
+                                            <span>{!! $sortDir == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
+                                        @endif
+                                    </a>
+                                </th>
+                                <th class="px-6 py-3">
+                                    <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'sort_by' => 'title', 'sort_dir' => $sortBy == 'title' && $sortDir == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center gap-1 hover:text-indigo-600">
+                                        Titolo
+                                        @if($sortBy == 'title')
+                                            <span>{!! $sortDir == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
+                                        @endif
+                                    </a>
+                                </th>
+                                <th class="px-6 py-3">
+                                    <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'sort_by' => 'amount', 'sort_dir' => $sortBy == 'amount' && $sortDir == 'desc' ? 'asc' : 'desc']) }}" class="flex items-center gap-1 hover:text-indigo-600">
+                                        Importo
+                                        @if($sortBy == 'amount')
+                                            <span>{!! $sortDir == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
+                                        @endif
+                                    </a>
+                                </th>
                                 <th class="px-6 py-3">Note</th>
                                 <th class="px-6 py-3">Azioni</th>
                             </tr>
@@ -117,6 +165,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const chartData = @json($expensesByCategory);
+            const categoryMapping = @json($categoryMapping);
             const labels = Object.keys(chartData);
             const data = Object.values(chartData);
             
@@ -143,6 +192,17 @@
                         maintainAspectRatio: false,
                         plugins: {
                             legend: { position: 'right' }
+                        },
+                        onClick: function(event, activeElements) {
+                            if (activeElements.length > 0) {
+                                const index = activeElements[0].index;
+                                const categoryName = labels[index];
+                                const catId = categoryMapping[categoryName];
+                                if (catId) {
+                                    document.getElementById('category_id').value = catId;
+                                    document.getElementById('category_id').closest('form').submit();
+                                }
+                            }
                         }
                     }
                 });
@@ -167,6 +227,17 @@
                         scales: {
                             y: { beginAtZero: true, grid: { borderDash: [2, 4] } },
                             x: { grid: { display: false } }
+                        },
+                        onClick: function(event, activeElements) {
+                            if (activeElements.length > 0) {
+                                const index = activeElements[0].index;
+                                const categoryName = labels[index];
+                                const catId = categoryMapping[categoryName];
+                                if (catId) {
+                                    document.getElementById('category_id').value = catId;
+                                    document.getElementById('category_id').closest('form').submit();
+                                }
+                            }
                         }
                     }
                 });

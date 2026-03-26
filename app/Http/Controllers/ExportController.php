@@ -14,16 +14,39 @@ class ExportController extends Controller
         
         $month = $request->input('month', Carbon::now()->month);
         $year = $request->input('year', Carbon::now()->year);
+        $categoryId = $request->input('category_id');
 
         $query = Expense::with('category')
             ->whereMonth('expense_date', $month)
             ->whereYear('expense_date', $year);
 
+        if ($categoryId) {
+            $query->where('category_id', $categoryId);
+        }
+
         if (!$user->hasRole('admin')) {
             $query->where('user_id', $user->id);
         }
 
-        $expenses = $query->orderBy('expense_date', 'desc')->get();
+        $expenses = $query->get();
+
+        $sortBy = $request->input('sort_by', 'expense_date');
+        $sortDir = $request->input('sort_dir', 'desc');
+
+        if ($sortDir === 'asc') {
+            if ($sortBy === 'category') {
+                $expenses = $expenses->sortBy(function($expense) { return strtolower($expense->category->name); });
+            } else {
+                $expenses = $expenses->sortBy(function($expense) use ($sortBy) { return is_string($expense->$sortBy) ? strtolower($expense->$sortBy) : $expense->$sortBy; });
+            }
+        } else {
+            if ($sortBy === 'category') {
+                $expenses = $expenses->sortByDesc(function($expense) { return strtolower($expense->category->name); });
+            } else {
+                $expenses = $expenses->sortByDesc(function($expense) use ($sortBy) { return is_string($expense->$sortBy) ? strtolower($expense->$sortBy) : $expense->$sortBy; });
+            }
+        }
+        $expenses = $expenses->values();
 
         $filename = "spese_{$year}_{$month}.csv";
         $headers = [
