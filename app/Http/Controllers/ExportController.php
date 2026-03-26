@@ -13,12 +13,21 @@ class ExportController extends Controller
         $user = $request->user();
         
         $month = $request->input('month', Carbon::now()->month);
-        $year = $request->input('year', Carbon::now()->year);
+        $year  = $request->input('year', Carbon::now()->year);
         $categoryId = $request->input('category_id');
+        $dateFrom = $request->input('date_from');
+        $dateTo   = $request->input('date_to');
+        $useRange = $dateFrom && $dateTo;
 
-        $query = Expense::with('category')
-            ->whereMonth('expense_date', $month)
-            ->whereYear('expense_date', $year);
+        $query = Expense::with('category');
+
+        if ($useRange) {
+            $query->whereDate('expense_date', '>=', $dateFrom)
+                  ->whereDate('expense_date', '<=', $dateTo);
+        } else {
+            $query->whereMonth('expense_date', $month)
+                  ->whereYear('expense_date', $year);
+        }
 
         if ($categoryId) {
             $query->where('category_id', $categoryId);
@@ -48,7 +57,9 @@ class ExportController extends Controller
         }
         $expenses = $expenses->values();
 
-        $filename = "spese_{$year}_{$month}.csv";
+        $filename = $useRange
+            ? 'spese_' . str_replace('-', '', $dateFrom) . '_' . str_replace('-', '', $dateTo) . '.csv'
+            : "spese_{$year}_{$month}.csv";
         $headers = [
             "Content-type"        => "text/csv",
             "Content-Disposition" => "attachment; filename=$filename",
