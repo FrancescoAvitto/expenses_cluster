@@ -24,7 +24,9 @@ class ExpenseController extends Controller
         Expense::create($validated);
         
         if ($request->input('action') === 'save_and_add') {
-            return redirect()->route('expenses.create')->with('success', 'Spesa inserita! Puoi aggiungerne un\'altra.');
+            return redirect()->route('expenses.create')
+                ->withInput(['expense_date' => $request->expense_date])
+                ->with('success', 'Spesa inserita! Puoi aggiungerne un\'altra.');
         }
 
         return redirect()->route('dashboard')->with('success', 'Spesa inserita!');
