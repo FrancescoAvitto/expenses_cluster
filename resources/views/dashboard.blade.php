@@ -22,7 +22,7 @@
                     <div class="flex gap-4 items-end flex-wrap">
                         <div>
                             <x-input-label for="month" :value="__('Mese')" />
-                            <select id="month" name="month" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1" {{ $useRange ? 'disabled' : '' }}>
+                            <select id="month" name="month" class="border-gray-300 focus:border-gray-500 focus:ring-[#374151] rounded-md shadow-sm mt-1" {{ $useRange ? 'disabled' : '' }}>
                                 @php
                                     $mesi = [1=>'Gennaio',2=>'Febbraio',3=>'Marzo',4=>'Aprile',5=>'Maggio',6=>'Giugno',
                                              7=>'Luglio',8=>'Agosto',9=>'Settembre',10=>'Ottobre',11=>'Novembre',12=>'Dicembre'];
@@ -34,7 +34,7 @@
                         </div>
                         <div>
                             <x-input-label for="year" :value="__('Anno')" />
-                            <select id="year" name="year" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1" {{ $useRange ? 'disabled' : '' }}>
+                            <select id="year" name="year" class="border-gray-300 focus:border-gray-500 focus:ring-[#374151] rounded-md shadow-sm mt-1" {{ $useRange ? 'disabled' : '' }}>
                                 @for($i=\Carbon\Carbon::now()->year + 2; $i>=2020; $i--)
                                     <option value="{{ $i }}" @selected($i == $year)>{{ $i }}</option>
                                 @endfor
@@ -42,7 +42,7 @@
                         </div>
                         <div>
                             <x-input-label for="category_id" :value="__('Categoria')" />
-                            <select id="category_id" name="category_id" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1">
+                            <select id="category_id" name="category_id" class="border-gray-300 focus:border-gray-500 focus:ring-[#374151] rounded-md shadow-sm mt-1">
                                 <option value="">Tutte le categorie</option>
                                 @foreach($categories as $category)
                                     <option value="{{ $category->id }}" @selected($category->id == $categoryId)>{{ $category->name }}</option>
@@ -54,7 +54,7 @@
                             <div class="flex items-center gap-2 mt-1 h-[42px]">
                                 <x-primary-button class="h-full" id="btnApplyFilter">{{ __('Filtra') }}</x-primary-button>
                                 @if($categoryId || $useRange)
-                                    <a href="{{ route('dashboard') }}" class="inline-flex items-center h-full px-4 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                    <a href="{{ route('dashboard') }}" class="inline-flex items-center h-full px-4 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#374151] focus:ring-offset-2 transition ease-in-out duration-150">
                                         {{ __('Reimposta') }}
                                     </a>
                                 @endif
@@ -65,13 +65,13 @@
                     <!-- Filtri Avanzati (collapsibile) -->
                     <div>
                         <button type="button" id="toggleAdvanced"
-                            class="flex items-center gap-2 text-sm font-medium text-indigo-600 hover:text-indigo-800 focus:outline-none transition">
+                            class="flex items-center gap-2 text-sm font-medium text-[#374151] hover:text-gray-900 focus:outline-none transition">
                             <svg id="arrowIcon" class="w-4 h-4 transition-transform {{ $useRange ? 'rotate-90' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                             </svg>
                             Filtri Avanzati
                             @if($useRange)
-                                <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                                     Intervallo attivo: {{ $periodoLabel }}
                                 </span>
                             @endif
@@ -90,14 +90,14 @@
                                         <x-input-label for="quickYear" :value="__('Anno')" />
                                         @php $quickYear = $dateFrom ? \Carbon\Carbon::parse($dateFrom)->year : \Carbon\Carbon::now()->year; @endphp
                                         <select id="quickYear"
-                                            class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1">
+                                            class="border-gray-300 focus:border-gray-500 focus:ring-[#374151] rounded-md shadow-sm mt-1">
                                             @for($i = \Carbon\Carbon::now()->year + 2; $i >= 2020; $i--)
                                                 <option value="{{ $i }}" @selected($i == $quickYear)>{{ $i }}</option>
                                             @endfor
                                         </select>
                                     </div>
                                     <button type="button" id="btnApplyYear"
-                                        class="inline-flex items-center h-[42px] px-4 bg-indigo-50 border border-indigo-300 rounded-md font-semibold text-xs text-indigo-700 uppercase tracking-widest shadow-sm hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                        class="inline-flex items-center h-[42px] px-4 bg-gray-50 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#374151] focus:ring-offset-2 transition ease-in-out duration-150">
                                         Applica anno
                                     </button>
                                 </div>
@@ -108,7 +108,7 @@
                                 <div>
                                     <x-input-label class="invisible" :value="__('x')" />
                                     <button type="button" id="btnCurrentYear"
-                                        class="inline-flex items-center h-[42px] px-4 bg-indigo-50 border border-indigo-300 rounded-md font-semibold text-xs text-indigo-700 uppercase tracking-widest shadow-sm hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                        class="inline-flex items-center h-[42px] px-4 bg-gray-50 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#374151] focus:ring-offset-2 transition ease-in-out duration-150">
                                         📅 Anno corrente
                                     </button>
                                 </div>
@@ -120,21 +120,21 @@
                                     <x-input-label for="date_from" :value="__('Dal')" />
                                     <input type="date" id="date_from" name="date_from"
                                         value="{{ $dateFrom ?? '' }}"
-                                        class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1" />
+                                        class="border-gray-300 focus:border-gray-500 focus:ring-[#374151] rounded-md shadow-sm mt-1" />
                                 </div>
                                 <div>
                                     <x-input-label for="date_to" :value="__('Al')" />
                                     <input type="date" id="date_to" name="date_to"
                                         value="{{ $dateTo ?? '' }}"
                                         max="{{ \Carbon\Carbon::now()->format('Y-m-d') }}"
-                                        class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1" />
+                                        class="border-gray-300 focus:border-gray-500 focus:ring-[#374151] rounded-md shadow-sm mt-1" />
                                 </div>
 
                                 @if($useRange)
                                     <div>
                                         <x-input-label class="invisible" :value="__('x')" />
                                         <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'category_id' => $categoryId]) }}"
-                                            class="inline-flex items-center h-[42px] px-4 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                            class="inline-flex items-center h-[42px] px-4 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#374151] focus:ring-offset-2 transition ease-in-out duration-150">
                                             Rimuovi intervallo
                                         </a>
                                     </div>
@@ -156,7 +156,7 @@
                 <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg flex flex-col justify-center items-center">
                     <h3 class="text-lg font-medium text-gray-900">Totale Spese</h3>
                     <p class="mt-1 text-sm text-gray-500">{{ $periodoLabel }}</p>
-                    <p class="mt-3 text-4xl font-bold text-indigo-600">€ {{ number_format($total, 2, ',', '.') }}</p>
+                    <p class="mt-3 text-4xl font-bold text-[#374151]">€ {{ number_format($total, 2, ',', '.') }}</p>
                 </div>
 
                 <!-- Pie Chart -->
@@ -191,7 +191,7 @@
                         <a href="{{ route('export.csv', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'sort_by' => $sortBy, 'sort_dir' => $sortDir, 'date_from' => $dateFrom, 'date_to' => $dateTo]) }}"
                             class="px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">Esporta CSV</a>
                         <a href="{{ route('expenses.create') }}"
-                            class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">Inserisci Spesa</a>
+                            class="px-4 py-2 bg-[#374151] border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-800 focus:bg-gray-800 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-[#374151] focus:ring-offset-2 transition ease-in-out duration-150">Inserisci Spesa</a>
                     </div>
                 </div>
                 <div class="overflow-x-auto">
@@ -199,7 +199,7 @@
                         <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3">
-                                    <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'date_from' => $dateFrom, 'date_to' => $dateTo, 'sort_by' => 'expense_date', 'sort_dir' => $sortBy == 'expense_date' && $sortDir == 'desc' ? 'asc' : 'desc']) }}" class="flex items-center gap-1 hover:text-indigo-600">
+                                    <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'date_from' => $dateFrom, 'date_to' => $dateTo, 'sort_by' => 'expense_date', 'sort_dir' => $sortBy == 'expense_date' && $sortDir == 'desc' ? 'asc' : 'desc']) }}" class="flex items-center gap-1 hover:text-[#374151]">
                                         Data
                                         @if($sortBy == 'expense_date')
                                             <span>{!! $sortDir == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
@@ -207,7 +207,7 @@
                                     </a>
                                 </th>
                                 <th class="px-6 py-3">
-                                    <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'date_from' => $dateFrom, 'date_to' => $dateTo, 'sort_by' => 'category', 'sort_dir' => $sortBy == 'category' && $sortDir == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center gap-1 hover:text-indigo-600">
+                                    <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'date_from' => $dateFrom, 'date_to' => $dateTo, 'sort_by' => 'category', 'sort_dir' => $sortBy == 'category' && $sortDir == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center gap-1 hover:text-[#374151]">
                                         Categoria
                                         @if($sortBy == 'category')
                                             <span>{!! $sortDir == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
@@ -215,7 +215,7 @@
                                     </a>
                                 </th>
                                 <th class="px-6 py-3">
-                                    <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'date_from' => $dateFrom, 'date_to' => $dateTo, 'sort_by' => 'title', 'sort_dir' => $sortBy == 'title' && $sortDir == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center gap-1 hover:text-indigo-600">
+                                    <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'date_from' => $dateFrom, 'date_to' => $dateTo, 'sort_by' => 'title', 'sort_dir' => $sortBy == 'title' && $sortDir == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center gap-1 hover:text-[#374151]">
                                         Titolo
                                         @if($sortBy == 'title')
                                             <span>{!! $sortDir == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
@@ -223,7 +223,7 @@
                                     </a>
                                 </th>
                                 <th class="px-6 py-3">
-                                    <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'date_from' => $dateFrom, 'date_to' => $dateTo, 'sort_by' => 'amount', 'sort_dir' => $sortBy == 'amount' && $sortDir == 'desc' ? 'asc' : 'desc']) }}" class="flex items-center gap-1 hover:text-indigo-600">
+                                    <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'date_from' => $dateFrom, 'date_to' => $dateTo, 'sort_by' => 'amount', 'sort_dir' => $sortBy == 'amount' && $sortDir == 'desc' ? 'asc' : 'desc']) }}" class="flex items-center gap-1 hover:text-[#374151]">
                                         Importo
                                         @if($sortBy == 'amount')
                                             <span>{!! $sortDir == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
@@ -243,7 +243,7 @@
                                     <td class="px-6 py-4 font-bold whitespace-nowrap">€ {{ number_format($expense->amount, 2, ',', '.') }}</td>
                                     <td class="px-6 py-4 truncate max-w-xs" title="{{ $expense->notes }}">{{ $expense->notes }}</td>
                                     <td class="px-6 py-4 flex gap-3">
-                                        <a href="{{ route('expenses.edit', $expense) }}" class="text-indigo-600 hover:text-indigo-900 font-medium">Modifica</a>
+                                        <a href="{{ route('expenses.edit', $expense) }}" class="text-[#374151] hover:text-gray-900 font-medium">Modifica</a>
                                         <form action="{{ route('expenses.destroy', $expense) }}" method="POST" onsubmit="return confirm('Sei sicuro di voler eliminare questa spesa?');">
                                             @csrf
                                             @method('DELETE')
@@ -274,13 +274,13 @@
             const activeCategoryId = "{{ $categoryId }}";
 
             const bgColors = labels.map((label) => {
-                const baseColor = categoryColors[label] || '#6366f1';
+                const baseColor = categoryColors[label] || '#374151';
                 if (!activeCategoryId) return baseColor;
                 const catId = categoryMapping[label];
                 return catId == activeCategoryId ? baseColor : '#d1d5db';
             });
 
-            const hoverBgColors = labels.map((label) => categoryColors[label] || '#6366f1');
+            const hoverBgColors = labels.map((label) => categoryColors[label] || '#374151');
 
             const pieCtx = document.getElementById('categoryPieChart');
             if (pieCtx) {
@@ -325,7 +325,7 @@
                             'text-align:left', 'width:100%', 'padding:3px 6px',
                             'border-radius:6px', 'border:none', 'background:transparent',
                             'cursor:pointer', 'font-size:0.78rem', 'line-height:1.3',
-                            isActive ? 'font-weight:700;background:#eef2ff' : '',
+                            isActive ? 'font-weight:700;background:#f3f4f6' : '',
                             isDimmed ? 'opacity:0.45' : ''
                         ].join(';');
 
@@ -340,15 +340,15 @@
                         text.textContent = label;
 
                         const val = document.createElement('span');
-                        val.style.cssText = 'flex-shrink:0;color:#6366f1;font-weight:600;white-space:nowrap';
+                        val.style.cssText = 'flex-shrink:0;color:#374151;font-weight:600;white-space:nowrap';
                         val.textContent = '€\u00a0' + amount.toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2});
 
                         item.appendChild(dot);
                         item.appendChild(text);
                         item.appendChild(val);
 
-                        item.addEventListener('mouseenter', () => item.style.background = '#f5f3ff');
-                        item.addEventListener('mouseleave', () => item.style.background = isActive ? '#eef2ff' : 'transparent');
+                        item.addEventListener('mouseenter', () => item.style.background = '#f9fafb');
+                        item.addEventListener('mouseleave', () => item.style.background = isActive ? '#f3f4f6' : 'transparent');
 
                         item.addEventListener('click', () => {
                             if (catId) {

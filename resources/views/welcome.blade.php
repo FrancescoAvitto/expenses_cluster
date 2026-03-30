@@ -27,18 +27,18 @@
             @if (Route::has('login'))
                 @auth
                     <a href="{{ url('/dashboard') }}"
-                        class="w-full inline-flex justify-center items-center px-4 py-3 bg-indigo-600 border border-transparent rounded-lg font-semibold text-sm text-white uppercase tracking-widest shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                        class="w-full inline-flex justify-center items-center px-4 py-3 bg-[#374151] border border-transparent rounded-lg font-semibold text-sm text-white uppercase tracking-widest shadow-sm hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-[#374151] focus:ring-offset-2 transition ease-in-out duration-150">
                         Vai alla Dashboard
                     </a>
                 @else
                     <a href="{{ route('login') }}"
-                        class="w-full inline-flex justify-center items-center px-4 py-3 bg-indigo-600 border border-transparent rounded-lg font-semibold text-sm text-white uppercase tracking-widest shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                        class="w-full inline-flex justify-center items-center px-4 py-3 bg-[#374151] border border-transparent rounded-lg font-semibold text-sm text-white uppercase tracking-widest shadow-sm hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-[#374151] focus:ring-offset-2 transition ease-in-out duration-150">
                         Log in
                     </a>
 
                     @if (Route::has('register'))
                         <a href="{{ route('register') }}"
-                            class="w-full inline-flex justify-center items-center px-4 py-3 bg-white border border-gray-300 rounded-lg font-semibold text-sm text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
+                            class="w-full inline-flex justify-center items-center px-4 py-3 bg-white border border-gray-300 rounded-lg font-semibold text-sm text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#374151] focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
                             Registrati
                         </a>
                     @endif

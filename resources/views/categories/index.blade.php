@@ -17,7 +17,7 @@
             <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-lg font-medium text-gray-900">Elenco Categorie</h3>
-                    <a href="{{ route('categories.create') }}" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700">Nuova Categoria</a>
+                    <a href="{{ route('categories.create') }}" class="px-4 py-2 bg-[#374151] border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-800">Nuova Categoria</a>
                 </div>
                 
                 <div class="overflow-x-auto">
@@ -37,7 +37,7 @@
                                     <td class="px-6 py-4">{{ $category->id }}</td>
                                     <td class="px-6 py-4">
                                         <div class="flex items-center gap-2">
-                                            <div class="w-6 h-6 rounded-full border border-gray-200" style="background-color: {{ $category->color ?? '#6366f1' }};"></div>
+                                            <div class="w-6 h-6 rounded-full border border-gray-200" style="background-color: {{ $category->color ?? '#374151' }};"></div>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 font-medium text-gray-900">{{ $category->name }}</td>
@@ -50,7 +50,7 @@
                                     </td>
                                     <td class="px-6 py-4 flex gap-3">
                                         @can('update', $category)
-                                        <a href="{{ route('categories.edit', $category) }}" class="text-indigo-600 hover:text-indigo-900 font-medium">Modifica</a>
+                                        <a href="{{ route('categories.edit', $category) }}" class="text-[#374151] hover:text-gray-900 font-medium">Modifica</a>
                                         @endcan
                                         
                                         @can('delete', $category)

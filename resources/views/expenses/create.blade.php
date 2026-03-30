@@ -19,7 +19,7 @@
 
                     <div>
                         <x-input-label for="category_id" :value="__('Categoria')" />
-                        <select id="category_id" name="category_id" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                        <select id="category_id" name="category_id" class="mt-1 block w-full border-gray-300 focus:border-gray-500 focus:ring-[#374151] rounded-md shadow-sm" required>
                             <option value="">Seleziona una categoria</option>
                             @foreach($categories as $category)
                                 <option value="{{ $category->id }}" @selected(old('category_id') == $category->id)>
@@ -44,13 +44,13 @@
 
                     <div>
                         <x-input-label for="notes" :value="__('Note (Opzionale)')" />
-                        <textarea id="notes" name="notes" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('notes') }}</textarea>
+                        <textarea id="notes" name="notes" class="mt-1 block w-full border-gray-300 focus:border-gray-500 focus:ring-[#374151] rounded-md shadow-sm">{{ old('notes') }}</textarea>
                         <x-input-error :messages="$errors->get('notes')" class="mt-2" />
                     </div>
 
                     <div class="flex items-center gap-4">
                         <x-primary-button name="action" value="save">{{ __('Salva Spesa') }}</x-primary-button>
-                        <button type="submit" name="action" value="save_and_add" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
+                        <button type="submit" name="action" value="save_and_add" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#374151] focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
                             {{ __('Salva e aggiungi altra spesa') }}
                         </button>
                         <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-gray-900">Annulla</a>

@@ -6,6 +6,8 @@ use App\Models\Category;
 use App\Http\Requests\StoreExpenseRequest;
 use App\Http\Requests\UpdateExpenseRequest;
 use Illuminate\Support\Facades\Gate;
+use Carbon\Carbon;
+
 
 class ExpenseController extends Controller
 {
@@ -21,7 +23,7 @@ class ExpenseController extends Controller
     public function store(StoreExpenseRequest $request) {
         $validated = $request->validated();
         $validated['user_id'] = auth()->id();
-        Expense::create($validated);
+        $expense = Expense::create($validated);
         
         if ($request->input('action') === 'save_and_add') {
             return redirect()->route('expenses.create')
@@ -29,7 +31,10 @@ class ExpenseController extends Controller
                 ->with('success', 'Spesa inserita! Puoi aggiungerne un\'altra.');
         }
 
-        return redirect()->route('dashboard')->with('success', 'Spesa inserita!');
+        return redirect()->route('dashboard', [
+            'month' => Carbon::parse($expense->expense_date)->month,
+            'year' => Carbon::parse($expense->expense_date)->year,
+        ])->with('success', 'Spesa inserita!');
     }
 
     public function edit(Expense $expense) {
@@ -40,7 +45,11 @@ class ExpenseController extends Controller
 
     public function update(UpdateExpenseRequest $request, Expense $expense) {
         $expense->update($request->validated());
-        return redirect()->route('dashboard')->with('success', 'Spesa aggiornata!');
+
+        return redirect()->route('dashboard', [
+            'month' => Carbon::parse($expense->expense_date)->month,
+            'year' => Carbon::parse($expense->expense_date)->year,
+        ])->with('success', 'Spesa aggiornata!');
     }
 
     public function destroy(Expense $expense) {

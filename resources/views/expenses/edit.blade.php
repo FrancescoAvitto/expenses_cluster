@@ -20,7 +20,7 @@
 
                     <div>
                         <x-input-label for="category_id" :value="__('Categoria')" />
-                        <select id="category_id" name="category_id" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                        <select id="category_id" name="category_id" class="mt-1 block w-full border-gray-300 focus:border-gray-500 focus:ring-[#374151] rounded-md shadow-sm" required>
                             @foreach($categories as $category)
                                 <option value="{{ $category->id }}" @selected(old('category_id', $expense->category_id) == $category->id)>
                                     {{ $category->name }}
@@ -44,7 +44,7 @@
 
                     <div>
                         <x-input-label for="notes" :value="__('Note (Opzionale)')" />
-                        <textarea id="notes" name="notes" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('notes', $expense->notes) }}</textarea>
+                        <textarea id="notes" name="notes" class="mt-1 block w-full border-gray-300 focus:border-gray-500 focus:ring-[#374151] rounded-md shadow-sm">{{ old('notes', $expense->notes) }}</textarea>
                         <x-input-error :messages="$errors->get('notes')" class="mt-2" />
                     </div>
 
