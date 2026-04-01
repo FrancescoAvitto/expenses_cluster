@@ -24,6 +24,20 @@ class DashboardController extends Controller
             ->orderBy('name', 'asc')
             ->get();
 
+        // Recupero gli anni disponibili con dati (per l'utente attuale o tutti se admin)
+        $availableYears = Expense::when(!$user->hasRole('admin'), function($query) use ($user) {
+                return $query->where('user_id', $user->id);
+            })
+            ->selectRaw('YEAR(expense_date) as year')
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year');
+
+        // Se non ci sono spese, mostro almeno l'anno corrente
+        if ($availableYears->isEmpty()) {
+            $availableYears = collect([Carbon::now()->year]);
+        }
+
         $query = Expense::with('category');
 
         if ($useRange) {
@@ -89,7 +103,7 @@ class DashboardController extends Controller
             'expenses', 'expensesByCategory', 'total',
             'month', 'year', 'categories', 'categoryId',
             'categoryMapping', 'categoryColors', 'sortBy', 'sortDir',
-            'dateFrom', 'dateTo', 'useRange', 'periodoLabel'
+            'dateFrom', 'dateTo', 'useRange', 'periodoLabel', 'availableYears'
         ));
     }
 }

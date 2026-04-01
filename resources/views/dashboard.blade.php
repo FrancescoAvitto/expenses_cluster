@@ -35,9 +35,9 @@
                         <div>
                             <x-input-label for="year" :value="__('Anno')" />
                             <select id="year" name="year" class="border-gray-300 focus:border-gray-500 focus:ring-[#374151] rounded-md shadow-sm mt-1" {{ $useRange ? 'disabled' : '' }}>
-                                @for($i=\Carbon\Carbon::now()->year + 2; $i>=2020; $i--)
-                                    <option value="{{ $i }}" @selected($i == $year)>{{ $i }}</option>
-                                @endfor
+                                @foreach($availableYears as $y)
+                                    <option value="{{ $y }}" @selected($y == $year)>{{ $y }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div>
@@ -91,9 +91,9 @@
                                         @php $quickYear = $dateFrom ? \Carbon\Carbon::parse($dateFrom)->year : \Carbon\Carbon::now()->year; @endphp
                                         <select id="quickYear"
                                             class="border-gray-300 focus:border-gray-500 focus:ring-[#374151] rounded-md shadow-sm mt-1">
-                                            @for($i = \Carbon\Carbon::now()->year + 2; $i >= 2020; $i--)
-                                                <option value="{{ $i }}" @selected($i == $quickYear)>{{ $i }}</option>
-                                            @endfor
+                                            @foreach($availableYears as $y)
+                                                <option value="{{ $y }}" @selected($y == $quickYear)>{{ $y }}</option>
+                                            @endforeach
                                         </select>
                                     </div>
                                     <button type="button" id="btnApplyYear"
@@ -243,7 +243,7 @@
                                     <td class="px-6 py-4 font-bold whitespace-nowrap">€ {{ number_format($expense->amount, 2, ',', '.') }}</td>
                                     <td class="px-6 py-4 truncate max-w-xs" title="{{ $expense->notes }}">{{ $expense->notes }}</td>
                                     <td class="px-6 py-4 flex gap-3">
-                                        <a href="{{ route('expenses.edit', $expense) }}" class="text-[#374151] hover:text-gray-900 font-medium">Modifica</a>
+                                        <a href="{{ route('expenses.edit', $expense) }}" class="text-orange-600 hover:text-orange-500 active:text-orange-700 font-medium transition-colors">Modifica</a>
                                         <form action="{{ route('expenses.destroy', $expense) }}" method="POST" onsubmit="return confirm('Sei sicuro di voler eliminare questa spesa?');">
                                             @csrf
                                             @method('DELETE')

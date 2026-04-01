@@ -50,7 +50,7 @@
                                     </td>
                                     <td class="px-6 py-4 flex gap-3">
                                         @can('update', $category)
-                                        <a href="{{ route('categories.edit', $category) }}" class="text-[#374151] hover:text-gray-900 font-medium">Modifica</a>
+                                        <a href="{{ route('categories.edit', $category) }}" class="text-[#0f5257] hover:opacity-80 font-medium">Modifica</a>
                                         @endcan
                                         
                                         @can('delete', $category)
