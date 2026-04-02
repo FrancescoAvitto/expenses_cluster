@@ -118,12 +118,12 @@
                 </div>
 
                 @if(count($datasets) > 0)
-                    <div class="flex flex-col md:flex-row gap-6 mb-2" style="height: 400px; width: 100%;">
+                    <div class="flex flex-row gap-6 mb-2" style="height: 400px; width: 100%;">
                         <div style="flex: 1; position: relative; min-height: 300px;">
                             <canvas id="trendLineChart"></canvas>
                         </div>
                         <div id="trendLegend"
-                            class="w-full md:w-64 overflow-y-auto flex flex-col gap-1 pr-1 border-l pl-4 border-gray-100">
+                            class="w-1/3 sm:w-1/4 md:w-64 overflow-y-auto flex flex-col gap-1 pr-1 border-l pl-4 border-gray-100">
                         </div>
                     </div>
                     <p class="text-xs text-gray-400 text-center">Puoi cliccare sulle categorie nella lista a destra per
@@ -137,6 +137,30 @@
                 @endif
             </div>
 
+            <!-- Table Container (Initially Hidden) -->
+            <div id="detailsTableContainer" class="p-4 sm:p-8 bg-white shadow sm:rounded-lg hidden mt-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-medium text-gray-900" id="detailsTableTitle">Dettaglio Spese</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-gray-500">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3">Data</th>
+                                <th class="px-6 py-3">Categoria</th>
+                                <th class="px-6 py-3">Titolo</th>
+                                <th class="px-6 py-3">Importo</th>
+                                <th class="px-6 py-3">Note</th>
+                                <th class="px-6 py-3">Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detailsTableBody">
+                            <!-- Filled via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -148,6 +172,8 @@
             document.addEventListener('DOMContentLoaded', function () {
                 const rawDatasets = @json($datasets);
                 const monthsLabels = @json($monthsLabels);
+                const monthKeys = @json($monthKeys);
+                const expensesDetails = @json($expensesDetails);
 
                 // 1. Stacked Bar Chart
                 const barCtx = document.getElementById('trendStackedBarChart');
@@ -249,6 +275,21 @@
                             datasets: rawDatasets
                         },
                         options: {
+                            onClick: (e, elements, chart) => {
+                                if (elements.length > 0) {
+                                    const el = elements[0];
+                                    const datasetIndex = el.datasetIndex;
+                                    const index = el.index;
+                                    
+                                    const dataset = chart.data.datasets[datasetIndex];
+                                    const catName = dataset.label;
+                                    const monthKey = monthKeys[index];
+                                    // estrai solo il mese dalla label se ha il totale
+                                    const monthName = (typeof monthsLabels[index] === 'string') ? monthsLabels[index] : monthsLabels[index][0];
+                                    
+                                    renderExpensesTable(catName, monthKey, monthName);
+                                }
+                            },
                             responsive: true,
                             maintainAspectRatio: false,
                             interaction: {
@@ -409,6 +450,48 @@
                         // Esecuzione iniziale
                         applyFillLogic();
                     }
+                }
+
+                function renderExpensesTable(catName, monthKey, monthName) {
+                    const container = document.getElementById('detailsTableContainer');
+                    const title = document.getElementById('detailsTableTitle');
+                    const tbody = document.getElementById('detailsTableBody');
+                    
+                    const details = (expensesDetails[catName] && expensesDetails[catName][monthKey]) ? expensesDetails[catName][monthKey] : [];
+                    
+                    title.textContent = `Dettaglio Spese: ${catName} a ${monthName}`;
+                    
+                    if (details.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-400">Nessuna spesa loggata qui.</td></tr>';
+                    } else {
+                        let html = '';
+                        // get CSRF token from page meta tag if it exists (for delete forms)
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+                        
+                        details.forEach(exp => {
+                            html += `
+                                <tr class="bg-white border-b hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">${exp.date}</td>
+                                    <td class="px-6 py-4">${catName}</td>
+                                    <td class="px-6 py-4 font-medium text-gray-900">${exp.title || ''}</td>
+                                    <td class="px-6 py-4 font-bold whitespace-nowrap">€ ${exp.amount}</td>
+                                    <td class="px-6 py-4 truncate max-w-xs" title="${exp.notes || ''}">${exp.notes || ''}</td>
+                                    <td class="px-6 py-4 flex gap-3">
+                                        <a href="${exp.edit_url}" class="text-orange-600 hover:text-orange-500 active:text-orange-700 font-medium transition-colors">Modifica</a>
+                                        <form action="${exp.destroy_url}" method="POST" onsubmit="return confirm('Sei sicuro di voler eliminare questa spesa?');">
+                                            <input type="hidden" name="_token" value="${csrfToken}">
+                                            <input type="hidden" name="_method" value="DELETE">
+                                            <button type="submit" class="text-red-600 hover:text-red-900 font-medium">Elimina</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                        tbody.innerHTML = html;
+                    }
+                    
+                    container.classList.remove('hidden');
+                    container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }
             });
         </script>

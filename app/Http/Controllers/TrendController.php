@@ -88,12 +88,24 @@ class TrendController extends Controller
             $datasetsData[$category->name] = array_fill_keys($monthKeys, 0);
         }
 
+        $expensesDetails = [];
+
         // Popolamento dati
         foreach ($expenses as $expense) {
             $key = $expense->expense_date->format('Y-m');
             $catName = $expense->category->name;
             if (isset($datasetsData[$catName][$key])) {
                 $datasetsData[$catName][$key] += $expense->amount;
+
+                $expensesDetails[$catName][$key][] = [
+                    'id' => $expense->id,
+                    'date' => $expense->expense_date->format('d/m/Y'),
+                    'title' => $expense->title,
+                    'amount' => number_format($expense->amount, 2, ',', '.'),
+                    'notes' => $expense->notes,
+                    'edit_url' => route('expenses.edit', $expense->id),
+                    'destroy_url' => route('expenses.destroy', $expense->id)
+                ];
             }
         }
 
@@ -125,7 +137,7 @@ class TrendController extends Controller
 
         return view('trend.index', compact(
             'year', 'dateFrom', 'dateTo', 'useRange', 'availableYears',
-            'periodoLabel', 'monthsLabels', 'datasets'
+            'periodoLabel', 'monthsLabels', 'monthKeys', 'datasets', 'expensesDetails'
         ));
     }
 }
