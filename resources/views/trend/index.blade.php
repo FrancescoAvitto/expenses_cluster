@@ -201,6 +201,21 @@
                             datasets: barDatasets
                         },
                         options: {
+                            onClick: (e, elements, chart) => {
+                                if (elements.length > 0) {
+                                    const el = elements[0];
+                                    const datasetIndex = el.datasetIndex;
+                                    const index = el.index;
+                                    
+                                    const dataset = chart.data.datasets[datasetIndex];
+                                    const catName = dataset.label;
+                                    const monthKey = monthKeys[index];
+                                    // estrai solo il mese dalla label se ha il totale
+                                    const monthName = (typeof monthsLabels[index] === 'string') ? monthsLabels[index] : monthsLabels[index][0];
+                                    
+                                    renderExpensesTable(catName, monthKey, monthName);
+                                }
+                            },
                             responsive: true,
                             maintainAspectRatio: false,
                             interaction: {
