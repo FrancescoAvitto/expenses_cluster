@@ -85,6 +85,24 @@
                 </form>
             </div>
 
+            <!-- Stacked Bar Chart -->
+            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-medium text-gray-900">Totale Spese Mensili</h3>
+                    <div class="text-sm text-gray-500">{{ $periodoLabel }}</div>
+                </div>
+
+                @if(count($datasets) > 0)
+                    <div style="height: 350px; width: 100%;">
+                        <canvas id="trendStackedBarChart"></canvas>
+                    </div>
+                @else
+                    <div class="flex items-center justify-center text-gray-400 h-64 border-2 border-dashed border-gray-200 rounded-md">
+                        Nessun dato sulle spese per il periodo selezionato.
+                    </div>
+                @endif
+            </div>
+
             <!-- Line Chart -->
             <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                 <div class="flex justify-between items-center mb-6">
@@ -113,22 +131,98 @@
 
     @if(count($datasets) > 0)
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.1.0/dist/chartjs-plugin-zoom.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const ctx = document.getElementById('trendLineChart');
-            if (ctx) {
-                const chart = new Chart(ctx, {
-                    type: 'line',
+            const rawDatasets = @json($datasets);
+            const monthsLabels = @json($monthsLabels);
+
+            // 1. Stacked Bar Chart
+            const barCtx = document.getElementById('trendStackedBarChart');
+            if (barCtx) {
+                // Rimuoviamo l'attributo hidden inserito da PHP per mostrarle tutte by default
+                const barDatasets = JSON.parse(JSON.stringify(rawDatasets));
+                barDatasets.forEach(ds => ds.hidden = false);
+
+                new Chart(barCtx, {
+                    type: 'bar',
                     data: {
-                        labels: @json($monthsLabels),
-                        datasets: @json($datasets)
+                        labels: monthsLabels,
+                        datasets: barDatasets
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
                         interaction: {
-                            mode: 'index',
-                            intersect: false,
+                            mode: 'nearest',
+                            intersect: true,
+                        },
+                        scales: {
+                            x: {
+                                stacked: true,
+                                grid: { display: false }
+                            },
+                            y: {
+                                stacked: true,
+                                beginAtZero: true,
+                                grid: { borderDash: [2, 4] },
+                                ticks: {
+                                    callback: function(value, index, values) {
+                                        return '€ ' + value.toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            zoom: {
+                                zoom: {
+                                    wheel: { enabled: true, modifierKey: 'ctrl' },
+                                    pinch: { enabled: true },
+                                    mode: 'x'
+                                },
+                                pan: {
+                                    enabled: true,
+                                    mode: 'x'
+                                }
+                            },
+                            legend: {
+                                display: false // Nascosta per pulizia, la legenda colori è nella card sotto
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            label += '€ ' + context.parsed.y.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 2. Line Chart
+            const lineCtx = document.getElementById('trendLineChart');
+            if (lineCtx) {
+                const chart = new Chart(lineCtx, {
+                    type: 'line',
+                    data: {
+                        labels: monthsLabels,
+                        datasets: rawDatasets
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'nearest',
+                            intersect: true,
                         },
                         scales: {
                             y: {
@@ -149,6 +243,17 @@
                             }
                         },
                         plugins: {
+                            zoom: {
+                                zoom: {
+                                    wheel: { enabled: true, modifierKey: 'ctrl' },
+                                    pinch: { enabled: true },
+                                    mode: 'x'
+                                },
+                                pan: {
+                                    enabled: true,
+                                    mode: 'x'
+                                }
+                            },
                             legend: {
                                 display: false
                             },
@@ -230,10 +335,40 @@
                                 chart.show(dsInfo.index);
                                 item.style.opacity = '1';
                             }
+                            applyFillLogic();
                         });
 
                         legendEl.appendChild(item);
                     });
+
+                    // Logica aggiuntiva per Area Fill singolo
+                    function applyFillLogic() {
+                        let visibleCount = 0;
+                        let visibleIndex = -1;
+                        chart.data.datasets.forEach((ds, idx) => {
+                            if (chart.isDatasetVisible(idx)) {
+                                visibleCount++;
+                                visibleIndex = idx;
+                            }
+                            ds.fill = false;
+                            ds.backgroundColor = ds.borderColor; // Ripristina originario nel caso
+                        });
+
+                        if (visibleCount === 1 && visibleIndex !== -1) {
+                            chart.data.datasets[visibleIndex].fill = true;
+                            let color = chart.data.datasets[visibleIndex].borderColor;
+                            // Conversione alpha semplificata per un colore hex
+                            if (color && typeof color === 'string' && color.startsWith('#') && color.length === 7) {
+                                chart.data.datasets[visibleIndex].backgroundColor = color + '33'; // 20% alpha
+                            } else {
+                                chart.data.datasets[visibleIndex].backgroundColor = (typeof color === 'string' ? color : '#374151');
+                            }
+                        }
+                        chart.update();
+                    }
+
+                    // Esecuzione iniziale
+                    applyFillLogic();
                 }
             }
         });

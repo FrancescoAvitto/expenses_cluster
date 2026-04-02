@@ -115,8 +115,8 @@ class TrendController extends Controller
                     'tension' => 0.4, // Linee curve
                     'fill' => false,
                     'borderWidth' => 2,
-                    'pointRadius' => 3,
-                    'pointHoverRadius' => 5,
+                    'pointRadius' => 5,
+                    'pointHoverRadius' => 7,
                     'hidden' => $visibleCount >= 5
                 ];
                 $visibleCount++;
