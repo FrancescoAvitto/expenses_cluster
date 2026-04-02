@@ -145,7 +145,7 @@
                 const barDatasets = JSON.parse(JSON.stringify(rawDatasets));
                 barDatasets.forEach(ds => ds.hidden = false);
 
-                new Chart(barCtx, {
+                const barChart = new Chart(barCtx, {
                     type: 'bar',
                     data: {
                         labels: monthsLabels,
@@ -206,6 +206,14 @@
                         }
                     }
                 });
+
+                // Gestione Pan tramite Shift + Scroll
+                barCtx.addEventListener('wheel', (e) => {
+                    if (e.shiftKey) {
+                        e.preventDefault();
+                        barChart.pan({ x: -(e.deltaX || e.deltaY) });
+                    }
+                }, { passive: false });
             }
 
             // 2. Line Chart
@@ -274,6 +282,14 @@
                         }
                     }
                 });
+
+                // Gestione Pan tramite Shift + Scroll
+                lineCtx.addEventListener('wheel', (e) => {
+                    if (e.shiftKey) {
+                        e.preventDefault();
+                        chart.pan({ x: -(e.deltaX || e.deltaY) });
+                    }
+                }, { passive: false });
 
                 // Custom HTML Legend
                 const datasetTotals = chart.data.datasets.map((ds, index) => {
