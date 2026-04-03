@@ -146,10 +146,16 @@
                     <table class="w-full text-sm text-left text-gray-500">
                         <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3">Data</th>
+                                <th class="px-6 py-3 cursor-pointer sortable hover:bg-gray-100 transition-colors" data-sort="date">
+                                    <div class="flex items-center">Data <span id="sort-icon-date" class="ml-1 text-gray-400"></span></div>
+                                </th>
                                 <th class="px-6 py-3">Categoria</th>
-                                <th class="px-6 py-3">Titolo</th>
-                                <th class="px-6 py-3">Importo</th>
+                                <th class="px-6 py-3 cursor-pointer sortable hover:bg-gray-100 transition-colors" data-sort="title">
+                                    <div class="flex items-center">Titolo <span id="sort-icon-title" class="ml-1 text-gray-400"></span></div>
+                                </th>
+                                <th class="px-6 py-3 cursor-pointer sortable hover:bg-gray-100 transition-colors" data-sort="amount">
+                                    <div class="flex items-center">Importo <span id="sort-icon-amount" class="ml-1 text-gray-400"></span></div>
+                                </th>
                                 <th class="px-6 py-3">Note</th>
                                 <th class="px-6 py-3">Azioni</th>
                             </tr>
@@ -436,28 +442,30 @@
                             legendEl.appendChild(item);
                         });
 
-                        // Logica aggiuntiva per Area Fill singolo
+                        // Logica aggiuntiva per Area Fill singolo o doppio
                         function applyFillLogic() {
                             let visibleCount = 0;
-                            let visibleIndex = -1;
                             chart.data.datasets.forEach((ds, idx) => {
                                 if (chart.isDatasetVisible(idx)) {
                                     visibleCount++;
-                                    visibleIndex = idx;
                                 }
                                 ds.fill = false;
                                 ds.backgroundColor = ds.borderColor; // Ripristina originario nel caso
                             });
 
-                            if (visibleCount === 1 && visibleIndex !== -1) {
-                                chart.data.datasets[visibleIndex].fill = true;
-                                let color = chart.data.datasets[visibleIndex].borderColor;
-                                // Conversione alpha semplificata per un colore hex
-                                if (color && typeof color === 'string' && color.startsWith('#') && color.length === 7) {
-                                    chart.data.datasets[visibleIndex].backgroundColor = color + '33'; // 20% alpha
-                                } else {
-                                    chart.data.datasets[visibleIndex].backgroundColor = (typeof color === 'string' ? color : '#374151');
-                                }
+                            if (visibleCount > 0 && visibleCount <= 2) {
+                                chart.data.datasets.forEach((ds, idx) => {
+                                    if (chart.isDatasetVisible(idx)) {
+                                        ds.fill = true;
+                                        let color = ds.borderColor;
+                                        // Conversione alpha semplificata per un colore hex
+                                        if (color && typeof color === 'string' && color.startsWith('#') && color.length === 7) {
+                                            ds.backgroundColor = color + '33'; // 20% alpha
+                                        } else {
+                                            ds.backgroundColor = (typeof color === 'string' ? color : '#374151');
+                                        }
+                                    }
+                                });
                             }
                             chart.update();
                         }
@@ -467,44 +475,120 @@
                     }
                 }
 
-                function renderExpensesTable(catName, monthKey, monthName) {
-                    const container = document.getElementById('detailsTableContainer');
+                let currentSortColumn = 'date';
+                let currentSortDirection = 'asc';
+                let currentDetails = [];
+                let currentTableCatName = '';
+                let currentTableMonthName = '';
+
+                document.querySelectorAll('.sortable').forEach(th => {
+                    th.addEventListener('click', function() {
+                        const column = this.getAttribute('data-sort');
+                        handleSort(column);
+                    });
+                });
+
+                function handleSort(column) {
+                    if (currentSortColumn === column) {
+                        currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        currentSortColumn = column;
+                        currentSortDirection = 'asc';
+                    }
+                    renderTableBody();
+                }
+
+                function updateSortIcons() {
+                    ['date', 'title', 'amount'].forEach(col => {
+                        const iconContainer = document.getElementById(`sort-icon-${col}`);
+                        if(iconContainer) {
+                            iconContainer.innerHTML = '';
+                            if (currentSortColumn === col) {
+                                if (currentSortDirection === 'asc') {
+                                    iconContainer.innerHTML = `<svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>`;
+                                } else {
+                                    iconContainer.innerHTML = `<svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>`;
+                                }
+                            } else {
+                                iconContainer.innerHTML = `<svg class="w-4 h-4 inline opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path></svg>`;
+                            }
+                        }
+                    });
+                }
+
+                function renderTableBody() {
                     const title = document.getElementById('detailsTableTitle');
                     const tbody = document.getElementById('detailsTableBody');
                     
-                    const details = (expensesDetails[catName] && expensesDetails[catName][monthKey]) ? expensesDetails[catName][monthKey] : [];
+                    title.textContent = `Dettaglio Spese: ${currentTableCatName} a ${currentTableMonthName}`;
+                    updateSortIcons();
                     
-                    title.textContent = `Dettaglio Spese: ${catName} a ${monthName}`;
-                    
-                    if (details.length === 0) {
+                    if (currentDetails.length === 0) {
                         tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-400">Nessuna spesa loggata qui.</td></tr>';
-                    } else {
-                        let html = '';
-                        // get CSRF token from page meta tag if it exists (for delete forms)
-                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+                        return;
+                    }
+
+                    // Ordiniamo l'array locale
+                    currentDetails.sort(function(a, b) {
+                        let valA = a[currentSortColumn];
+                        let valB = b[currentSortColumn];
                         
-                        details.forEach(exp => {
-                            html += `
-                                <tr class="bg-white border-b hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap">${exp.date}</td>
-                                    <td class="px-6 py-4">${catName}</td>
-                                    <td class="px-6 py-4 font-medium text-gray-900">${exp.title || ''}</td>
-                                    <td class="px-6 py-4 font-bold whitespace-nowrap">€ ${exp.amount}</td>
-                                    <td class="px-6 py-4 truncate max-w-xs" title="${exp.notes || ''}">${exp.notes || ''}</td>
-                                    <td class="px-6 py-4 flex gap-3">
-                                        <a href="${exp.edit_url}" class="text-orange-600 hover:text-orange-500 active:text-orange-700 font-medium transition-colors">Modifica</a>
-                                        <form action="${exp.destroy_url}" method="POST" onsubmit="return confirm('Sei sicuro di voler eliminare questa spesa?');">
-                                            <input type="hidden" name="_token" value="${csrfToken}">
-                                            <input type="hidden" name="_method" value="DELETE">
-                                            <button type="submit" class="text-red-600 hover:text-red-900 font-medium">Elimina</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            `;
-                        });
-                        tbody.innerHTML = html;
+                        if (currentSortColumn === 'date') {
+                            const [da, ma, ya] = (valA || '').split('/');
+                            const [db, mb, yb] = (valB || '').split('/');
+                            valA = new Date(`${ya}-${ma}-${da}`).getTime() || 0;
+                            valB = new Date(`${yb}-${mb}-${db}`).getTime() || 0;
+                        } else if (currentSortColumn === 'amount') {
+                            valA = parseFloat((valA || '0').split('.').join('').replace(',', '.'));
+                            valB = parseFloat((valB || '0').split('.').join('').replace(',', '.'));
+                        } else if (currentSortColumn === 'title') {
+                            valA = (valA || '').toLowerCase();
+                            valB = (valB || '').toLowerCase();
+                        }
+                        
+                        if (valA < valB) return currentSortDirection === 'asc' ? -1 : 1;
+                        if (valA > valB) return currentSortDirection === 'asc' ? 1 : -1;
+                        return 0;
+                    });
+
+                    let html = '';
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+                    
+                    currentDetails.forEach(exp => {
+                        html += `
+                            <tr class="bg-white border-b hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">${exp.date}</td>
+                                <td class="px-6 py-4">${currentTableCatName}</td>
+                                <td class="px-6 py-4 font-medium text-gray-900">${exp.title || ''}</td>
+                                <td class="px-6 py-4 font-bold whitespace-nowrap">€ ${exp.amount}</td>
+                                <td class="px-6 py-4 truncate max-w-xs" title="${exp.notes || ''}">${exp.notes || ''}</td>
+                                <td class="px-6 py-4 flex gap-3">
+                                    <a href="${exp.edit_url}" class="text-orange-600 hover:text-orange-500 active:text-orange-700 font-medium transition-colors">Modifica</a>
+                                    <form action="${exp.destroy_url}" method="POST" onsubmit="return confirm('Sei sicuro di voler eliminare questa spesa?');">
+                                        <input type="hidden" name="_token" value="${csrfToken}">
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button type="submit" class="text-red-600 hover:text-red-900 font-medium">Elimina</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    tbody.innerHTML = html;
+                }
+
+                function renderExpensesTable(catName, monthKey, monthName) {
+                    currentTableCatName = catName;
+                    currentTableMonthName = monthName;
+                    
+                    if (expensesDetails[catName] && expensesDetails[catName][monthKey]) {
+                        currentDetails = [...expensesDetails[catName][monthKey]];
+                    } else {
+                        currentDetails = [];
                     }
                     
+                    renderTableBody();
+                    
+                    const container = document.getElementById('detailsTableContainer');
                     container.classList.remove('hidden');
                     container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }
