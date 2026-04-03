@@ -445,8 +445,16 @@
                                 item.style.opacity = '0.45';
                             }
 
-                            item.addEventListener('mouseenter', () => { if (chart.isDatasetVisible(dsInfo.index)) item.style.background = '#f9fafb'; });
-                            item.addEventListener('mouseleave', () => item.style.background = 'transparent');
+                            item.addEventListener('mouseenter', () => {
+                                item.style.background = '#f9fafb';
+                                item.style.opacity = '1';
+                            });
+                            item.addEventListener('mouseleave', () => {
+                                item.style.background = 'transparent';
+                                if (!chart.isDatasetVisible(dsInfo.index)) {
+                                    item.style.opacity = '0.45';
+                                }
+                            });
 
                             // Toggle Dataset Visibility
                             item.addEventListener('click', () => {
