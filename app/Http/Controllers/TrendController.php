@@ -135,9 +135,14 @@ class TrendController extends Controller
             }
         }
 
+        $totalExpensesAmount = $expenses->sum('amount');
+        $numberOfMonths = count($monthKeys);
+        $averageMonthlyExpense = $numberOfMonths > 0 ? ($totalExpensesAmount / $numberOfMonths) : 0;
+
         return view('trend.index', compact(
             'year', 'dateFrom', 'dateTo', 'useRange', 'availableYears',
-            'periodoLabel', 'monthsLabels', 'monthKeys', 'datasets', 'expensesDetails'
+            'periodoLabel', 'monthsLabels', 'monthKeys', 'datasets', 'expensesDetails',
+            'averageMonthlyExpense'
         ));
     }
 }

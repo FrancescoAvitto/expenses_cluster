@@ -93,9 +93,12 @@
 
             <!-- Stacked Bar Chart -->
             <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <div class="flex justify-between items-center mb-6">
+                <div class="flex justify-between items-start mb-6">
                     <h3 class="text-lg font-medium text-gray-900">Totale Spese Mensili</h3>
-                    <div class="text-sm text-gray-500">{{ $periodoLabel }}</div>
+                    <div class="text-right">
+                        <div class="text-sm text-gray-500">{{ $periodoLabel }}</div>
+                        <div class="text-xs text-gray-400 mt-1">media: € {{ number_format($averageMonthlyExpense, 2, ',', '.') }}/m</div>
+                    </div>
                 </div>
 
                 @if(count($datasets) > 0)
