@@ -97,7 +97,9 @@
                     <h3 class="text-lg font-medium text-gray-900">Totale Spese Mensili</h3>
                     <div class="text-right">
                         <div class="text-sm text-gray-500">{{ $periodoLabel }}</div>
-                        <div class="text-xs text-gray-400 mt-1">media: € {{ number_format($averageMonthlyExpense, 2, ',', '.') }}/m</div>
+                        <div class="text-xs text-gray-400 mt-1">media totale:
+                            {{ number_format($averageMonthlyExpense, 2, ',', '.') }}€/m
+                        </div>
                     </div>
                 </div>
 
@@ -149,15 +151,21 @@
                     <table class="w-full text-sm text-left text-gray-500">
                         <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 cursor-pointer sortable hover:bg-gray-100 transition-colors" data-sort="date">
-                                    <div class="flex items-center">Data <span id="sort-icon-date" class="ml-1 text-gray-400"></span></div>
+                                <th class="px-6 py-3 cursor-pointer sortable hover:bg-gray-100 transition-colors"
+                                    data-sort="date">
+                                    <div class="flex items-center">Data <span id="sort-icon-date"
+                                            class="ml-1 text-gray-400"></span></div>
                                 </th>
                                 <th class="px-6 py-3">Categoria</th>
-                                <th class="px-6 py-3 cursor-pointer sortable hover:bg-gray-100 transition-colors" data-sort="title">
-                                    <div class="flex items-center">Titolo <span id="sort-icon-title" class="ml-1 text-gray-400"></span></div>
+                                <th class="px-6 py-3 cursor-pointer sortable hover:bg-gray-100 transition-colors"
+                                    data-sort="title">
+                                    <div class="flex items-center">Titolo <span id="sort-icon-title"
+                                            class="ml-1 text-gray-400"></span></div>
                                 </th>
-                                <th class="px-6 py-3 cursor-pointer sortable hover:bg-gray-100 transition-colors" data-sort="amount">
-                                    <div class="flex items-center">Importo <span id="sort-icon-amount" class="ml-1 text-gray-400"></span></div>
+                                <th class="px-6 py-3 cursor-pointer sortable hover:bg-gray-100 transition-colors"
+                                    data-sort="amount">
+                                    <div class="flex items-center">Importo <span id="sort-icon-amount"
+                                            class="ml-1 text-gray-400"></span></div>
                                 </th>
                                 <th class="px-6 py-3">Note</th>
                                 <th class="px-6 py-3">Azioni</th>
@@ -215,13 +223,13 @@
                                     const el = elements[0];
                                     const datasetIndex = el.datasetIndex;
                                     const index = el.index;
-                                    
+
                                     const dataset = chart.data.datasets[datasetIndex];
                                     const catName = dataset.label;
                                     const monthKey = monthKeys[index];
                                     // estrai solo il mese dalla label se ha il totale
                                     const monthName = (typeof monthsLabels[index] === 'string') ? monthsLabels[index] : monthsLabels[index][0];
-                                    
+
                                     renderExpensesTable(catName, monthKey, monthName);
                                 }
                             },
@@ -304,13 +312,13 @@
                                     const el = elements[0];
                                     const datasetIndex = el.datasetIndex;
                                     const index = el.index;
-                                    
+
                                     const dataset = chart.data.datasets[datasetIndex];
                                     const catName = dataset.label;
                                     const monthKey = monthKeys[index];
                                     // estrai solo il mese dalla label se ha il totale
                                     const monthName = (typeof monthsLabels[index] === 'string') ? monthsLabels[index] : monthsLabels[index][0];
-                                    
+
                                     renderExpensesTable(catName, monthKey, monthName);
                                 }
                             },
@@ -380,9 +388,11 @@
                     }, { passive: false });
 
                     // Custom HTML Legend
+                    const numMonths = chart.data.labels.length;
                     const datasetTotals = chart.data.datasets.map((ds, index) => {
                         const total = ds.data.reduce((sum, val) => sum + val, 0);
-                        return { index, total, label: ds.label, color: ds.borderColor };
+                        const avg = numMonths > 0 ? (total / numMonths) : 0;
+                        return { index, total, avg, label: ds.label, color: ds.borderColor };
                     });
 
                     // Ordina per totale decrescente
@@ -412,13 +422,23 @@
                             text.style.flex = '1';
                             text.textContent = dsInfo.label;
 
-                            const val = document.createElement('span');
-                            val.style.cssText = 'flex-shrink:0;color:#374151;font-weight:600;white-space:nowrap;font-size:0.75rem';
-                            val.textContent = '€\u00a0' + dsInfo.total.toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                            const valContainer = document.createElement('div');
+                            valContainer.style.cssText = 'flex-shrink:0; display:flex; align-items:baseline; gap:6px; white-space:nowrap;';
+
+                            const valAvg = document.createElement('span');
+                            valAvg.style.cssText = 'color:#9ca3af;font-size:0.65rem;';
+                            valAvg.textContent = '(' + dsInfo.avg.toLocaleString('it-it', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '/m)';
+
+                            const valTotal = document.createElement('span');
+                            valTotal.style.cssText = 'color:#374151;font-weight:600;font-size:0.75rem';
+                            valTotal.textContent = dsInfo.total.toLocaleString('it-it', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '€';
+
+                            valContainer.appendChild(valAvg);
+                            valContainer.appendChild(valTotal);
 
                             item.appendChild(dot);
                             item.appendChild(text);
-                            item.appendChild(val);
+                            item.appendChild(valContainer);
 
                             // Init hidden style
                             if (chart.isDatasetVisible(dsInfo.index) === false) {
@@ -485,7 +505,7 @@
                 let currentTableMonthName = '';
 
                 document.querySelectorAll('.sortable').forEach(th => {
-                    th.addEventListener('click', function() {
+                    th.addEventListener('click', function () {
                         const column = this.getAttribute('data-sort');
                         handleSort(column);
                     });
@@ -504,7 +524,7 @@
                 function updateSortIcons() {
                     ['date', 'title', 'amount'].forEach(col => {
                         const iconContainer = document.getElementById(`sort-icon-${col}`);
-                        if(iconContainer) {
+                        if (iconContainer) {
                             iconContainer.innerHTML = '';
                             if (currentSortColumn === col) {
                                 if (currentSortDirection === 'asc') {
@@ -522,20 +542,20 @@
                 function renderTableBody() {
                     const title = document.getElementById('detailsTableTitle');
                     const tbody = document.getElementById('detailsTableBody');
-                    
+
                     title.textContent = `Dettaglio Spese: ${currentTableCatName} a ${currentTableMonthName}`;
                     updateSortIcons();
-                    
+
                     if (currentDetails.length === 0) {
                         tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-400">Nessuna spesa loggata qui.</td></tr>';
                         return;
                     }
 
                     // Ordiniamo l'array locale
-                    currentDetails.sort(function(a, b) {
+                    currentDetails.sort(function (a, b) {
                         let valA = a[currentSortColumn];
                         let valB = b[currentSortColumn];
-                        
+
                         if (currentSortColumn === 'date') {
                             const [da, ma, ya] = (valA || '').split('/');
                             const [db, mb, yb] = (valB || '').split('/');
@@ -548,7 +568,7 @@
                             valA = (valA || '').toLowerCase();
                             valB = (valB || '').toLowerCase();
                         }
-                        
+
                         if (valA < valB) return currentSortDirection === 'asc' ? -1 : 1;
                         if (valA > valB) return currentSortDirection === 'asc' ? 1 : -1;
                         return 0;
@@ -556,25 +576,25 @@
 
                     let html = '';
                     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
-                    
+
                     currentDetails.forEach(exp => {
                         html += `
-                            <tr class="bg-white border-b hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap">${exp.date}</td>
-                                <td class="px-6 py-4">${currentTableCatName}</td>
-                                <td class="px-6 py-4 font-medium text-gray-900">${exp.title || ''}</td>
-                                <td class="px-6 py-4 font-bold whitespace-nowrap">€ ${exp.amount}</td>
-                                <td class="px-6 py-4 truncate max-w-xs" title="${exp.notes || ''}">${exp.notes || ''}</td>
-                                <td class="px-6 py-4 flex gap-3">
-                                    <a href="${exp.edit_url}" class="text-orange-600 hover:text-orange-500 active:text-orange-700 font-medium transition-colors">Modifica</a>
-                                    <form action="${exp.destroy_url}" method="POST" onsubmit="return confirm('Sei sicuro di voler eliminare questa spesa?');">
-                                        <input type="hidden" name="_token" value="${csrfToken}">
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <button type="submit" class="text-red-600 hover:text-red-900 font-medium">Elimina</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        `;
+                                        <tr class="bg-white border-b hover:bg-gray-50">
+                                            <td class="px-6 py-4 whitespace-nowrap">${exp.date}</td>
+                                            <td class="px-6 py-4">${currentTableCatName}</td>
+                                            <td class="px-6 py-4 font-medium text-gray-900">${exp.title || ''}</td>
+                                            <td class="px-6 py-4 font-bold whitespace-nowrap">€ ${exp.amount}</td>
+                                            <td class="px-6 py-4 truncate max-w-xs" title="${exp.notes || ''}">${exp.notes || ''}</td>
+                                            <td class="px-6 py-4 flex gap-3">
+                                                <a href="${exp.edit_url}" class="text-orange-600 hover:text-orange-500 active:text-orange-700 font-medium transition-colors">Modifica</a>
+                                                <form action="${exp.destroy_url}" method="POST" onsubmit="return confirm('Sei sicuro di voler eliminare questa spesa?');">
+                                                    <input type="hidden" name="_token" value="${csrfToken}">
+                                                    <input type="hidden" name="_method" value="DELETE">
+                                                    <button type="submit" class="text-red-600 hover:text-red-900 font-medium">Elimina</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    `;
                     });
                     tbody.innerHTML = html;
                 }
@@ -582,15 +602,15 @@
                 function renderExpensesTable(catName, monthKey, monthName) {
                     currentTableCatName = catName;
                     currentTableMonthName = monthName;
-                    
+
                     if (expensesDetails[catName] && expensesDetails[catName][monthKey]) {
                         currentDetails = [...expensesDetails[catName][monthKey]];
                     } else {
                         currentDetails = [];
                     }
-                    
+
                     renderTableBody();
-                    
+
                     const container = document.getElementById('detailsTableContainer');
                     container.classList.remove('hidden');
                     container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
