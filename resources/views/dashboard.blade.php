@@ -53,8 +53,8 @@
                             <x-input-label class="invisible" :value="__('Azioni')" />
                             <div class="flex items-center gap-2 mt-1 h-[42px]">
                                 <x-primary-button class="h-full" id="btnApplyFilter">{{ __('Filtra') }}</x-primary-button>
-                                @if($categoryId || $useRange)
-                                    <a href="{{ route('dashboard') }}" class="inline-flex items-center h-full px-4 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#374151] focus:ring-offset-2 transition ease-in-out duration-150">
+                                @if($categoryId)
+                                    <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'date_from' => $dateFrom, 'date_to' => $dateTo, 'sort_by' => $sortBy, 'sort_dir' => $sortDir]) }}" class="inline-flex items-center h-full px-4 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#374151] focus:ring-offset-2 transition ease-in-out duration-150">
                                         {{ __('Reimposta') }}
                                     </a>
                                 @endif
@@ -299,7 +299,8 @@
                                 const categoryName = labels[activeElements[0].index];
                                 const catId = categoryMapping[categoryName];
                                 if (catId) {
-                                    document.getElementById('category_id').value = catId;
+                                    const currentId = document.getElementById('category_id').value;
+                                    document.getElementById('category_id').value = (catId == currentId) ? '' : catId;
                                     document.getElementById('filterForm').submit();
                                 }
                             }
@@ -352,7 +353,8 @@
 
                         item.addEventListener('click', () => {
                             if (catId) {
-                                document.getElementById('category_id').value = catId;
+                                const currentId = document.getElementById('category_id').value;
+                                document.getElementById('category_id').value = (catId == currentId) ? '' : catId;
                                 document.getElementById('filterForm').submit();
                             }
                         });
@@ -382,7 +384,8 @@
                                 const categoryName = labels[activeElements[0].index];
                                 const catId = categoryMapping[categoryName];
                                 if (catId) {
-                                    document.getElementById('category_id').value = catId;
+                                    const currentId = document.getElementById('category_id').value;
+                                    document.getElementById('category_id').value = (catId == currentId) ? '' : catId;
                                     document.getElementById('filterForm').submit();
                                 }
                             }
