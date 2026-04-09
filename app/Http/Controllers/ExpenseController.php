@@ -55,6 +55,6 @@ class ExpenseController extends Controller
     public function destroy(Expense $expense) {
         Gate::authorize('delete', $expense);
         $expense->delete();
-        return redirect()->route('dashboard')->with('success', 'Spesa eliminata!');
+        return redirect()->route('dashboard', request()->query())->with('success', 'Spesa eliminata!');
     }
 }

@@ -244,7 +244,7 @@
                                     <td class="px-6 py-4 truncate max-w-xs" title="{{ $expense->notes }}">{{ $expense->notes }}</td>
                                     <td class="px-6 py-4 flex gap-3">
                                         <a href="{{ route('expenses.edit', $expense) }}" class="text-orange-600 hover:text-orange-500 active:text-orange-700 font-medium transition-colors">Modifica</a>
-                                        <form action="{{ route('expenses.destroy', $expense) }}" method="POST" onsubmit="return confirm('Sei sicuro di voler eliminare questa spesa?');">
+                                        <form action="{{ route('expenses.destroy', array_merge(['expense' => $expense->id], request()->query())) }}" method="POST" onsubmit="return confirm('Sei sicuro di voler eliminare questa spesa?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="text-red-600 hover:text-red-900 font-medium">Elimina</button>
