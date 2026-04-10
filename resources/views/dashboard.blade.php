@@ -188,6 +188,14 @@
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-lg font-medium text-gray-900">Elenco Spese {{ $periodoLabel }}</h3>
                     <div class="flex gap-4">
+                        <form action="{{ route('import.csv') }}" method="POST" enctype="multipart/form-data" class="hidden" id="importCsvForm">
+                            @csrf
+                            <input type="file" name="csv_file" id="csv_file" accept=".csv" onchange="if(this.files.length > 0) document.getElementById('importCsvForm').submit()">
+                        </form>
+                        <button type="button" onclick="document.getElementById('csv_file').click()"
+                            class="px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#374151] focus:ring-offset-2 transition ease-in-out duration-150">
+                            Importa CSV
+                        </button>
                         <a href="{{ route('export.csv', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'sort_by' => $sortBy, 'sort_dir' => $sortDir, 'date_from' => $dateFrom, 'date_to' => $dateTo]) }}"
                             class="px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">Esporta CSV</a>
                         <a href="{{ route('expenses.create') }}"
