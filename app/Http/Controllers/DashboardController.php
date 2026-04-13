@@ -52,6 +52,14 @@ class DashboardController extends Controller
             $query->where('user_id', $user->id);
         }
 
+        $search = $request->input('search');
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%')
+                  ->orWhere('notes', 'like', '%' . $search . '%');
+            });
+        }
+
         $allExpenses = $query->orderBy('expense_date', 'desc')->get();
 
         $expensesByCategory = $allExpenses->groupBy(function($expense) {
@@ -103,7 +111,7 @@ class DashboardController extends Controller
             'expenses', 'expensesByCategory', 'total',
             'month', 'year', 'categories', 'categoryId',
             'categoryMapping', 'categoryColors', 'sortBy', 'sortDir',
-            'dateFrom', 'dateTo', 'useRange', 'periodoLabel', 'availableYears'
+            'dateFrom', 'dateTo', 'useRange', 'periodoLabel', 'availableYears', 'search'
         ));
     }
 }

@@ -50,10 +50,14 @@
                             </select>
                         </div>
                         <div>
+                            <x-input-label for="search" :value="__('Ricerca testuale')" />
+                            <input type="text" id="search" name="search" value="{{ $search ?? '' }}" class="border-gray-300 focus:border-gray-500 focus:ring-[#374151] rounded-md shadow-sm mt-1" placeholder="Titolo o note...">
+                        </div>
+                        <div>
                             <x-input-label class="invisible" :value="__('Azioni')" />
                             <div class="flex items-center gap-2 mt-1 h-[42px]">
                                 <x-primary-button class="h-full" id="btnApplyFilter">{{ __('Filtra') }}</x-primary-button>
-                                @if($categoryId)
+                                @if($categoryId || $search)
                                     <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'date_from' => $dateFrom, 'date_to' => $dateTo, 'sort_by' => $sortBy, 'sort_dir' => $sortDir]) }}" class="inline-flex items-center h-full px-4 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#374151] focus:ring-offset-2 transition ease-in-out duration-150">
                                         {{ __('Reimposta') }}
                                     </a>
@@ -133,7 +137,7 @@
                                 @if($useRange)
                                     <div>
                                         <x-input-label class="invisible" :value="__('x')" />
-                                        <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'category_id' => $categoryId]) }}"
+                                        <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'search' => $search]) }}"
                                             class="inline-flex items-center h-[42px] px-4 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#374151] focus:ring-offset-2 transition ease-in-out duration-150">
                                             Rimuovi intervallo
                                         </a>
@@ -196,7 +200,7 @@
                             class="px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#374151] focus:ring-offset-2 transition ease-in-out duration-150">
                             Importa CSV
                         </button>
-                        <a href="{{ route('export.csv', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'sort_by' => $sortBy, 'sort_dir' => $sortDir, 'date_from' => $dateFrom, 'date_to' => $dateTo]) }}"
+                        <a href="{{ route('export.csv', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'search' => $search, 'sort_by' => $sortBy, 'sort_dir' => $sortDir, 'date_from' => $dateFrom, 'date_to' => $dateTo]) }}"
                             class="px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">Esporta CSV</a>
                         <a href="{{ route('expenses.create') }}"
                             class="px-4 py-2 bg-[#374151] border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-800 focus:bg-gray-800 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-[#374151] focus:ring-offset-2 transition ease-in-out duration-150">Inserisci Spesa</a>
@@ -207,7 +211,7 @@
                         <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3">
-                                    <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'date_from' => $dateFrom, 'date_to' => $dateTo, 'sort_by' => 'expense_date', 'sort_dir' => $sortBy == 'expense_date' && $sortDir == 'desc' ? 'asc' : 'desc']) }}" class="flex items-center gap-1 hover:text-[#374151]">
+                                    <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'search' => $search, 'date_from' => $dateFrom, 'date_to' => $dateTo, 'sort_by' => 'expense_date', 'sort_dir' => $sortBy == 'expense_date' && $sortDir == 'desc' ? 'asc' : 'desc']) }}" class="flex items-center gap-1 hover:text-[#374151]">
                                         Data
                                         @if($sortBy == 'expense_date')
                                             <span>{!! $sortDir == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
@@ -215,7 +219,7 @@
                                     </a>
                                 </th>
                                 <th class="px-6 py-3">
-                                    <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'date_from' => $dateFrom, 'date_to' => $dateTo, 'sort_by' => 'category', 'sort_dir' => $sortBy == 'category' && $sortDir == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center gap-1 hover:text-[#374151]">
+                                    <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'search' => $search, 'date_from' => $dateFrom, 'date_to' => $dateTo, 'sort_by' => 'category', 'sort_dir' => $sortBy == 'category' && $sortDir == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center gap-1 hover:text-[#374151]">
                                         Categoria
                                         @if($sortBy == 'category')
                                             <span>{!! $sortDir == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
@@ -223,7 +227,7 @@
                                     </a>
                                 </th>
                                 <th class="px-6 py-3">
-                                    <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'date_from' => $dateFrom, 'date_to' => $dateTo, 'sort_by' => 'title', 'sort_dir' => $sortBy == 'title' && $sortDir == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center gap-1 hover:text-[#374151]">
+                                    <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'search' => $search, 'date_from' => $dateFrom, 'date_to' => $dateTo, 'sort_by' => 'title', 'sort_dir' => $sortBy == 'title' && $sortDir == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center gap-1 hover:text-[#374151]">
                                         Titolo
                                         @if($sortBy == 'title')
                                             <span>{!! $sortDir == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
@@ -231,7 +235,7 @@
                                     </a>
                                 </th>
                                 <th class="px-6 py-3">
-                                    <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'date_from' => $dateFrom, 'date_to' => $dateTo, 'sort_by' => 'amount', 'sort_dir' => $sortBy == 'amount' && $sortDir == 'desc' ? 'asc' : 'desc']) }}" class="flex items-center gap-1 hover:text-[#374151]">
+                                    <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'search' => $search, 'date_from' => $dateFrom, 'date_to' => $dateTo, 'sort_by' => 'amount', 'sort_dir' => $sortBy == 'amount' && $sortDir == 'desc' ? 'asc' : 'desc']) }}" class="flex items-center gap-1 hover:text-[#374151]">
                                         Importo
                                         @if($sortBy == 'amount')
                                             <span>{!! $sortDir == 'asc' ? '&#9650;' : '&#9660;' !!}</span>

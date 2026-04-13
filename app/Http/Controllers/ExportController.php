@@ -37,6 +37,14 @@ class ExportController extends Controller
             $query->where('user_id', $user->id);
         }
 
+        $search = $request->input('search');
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%')
+                  ->orWhere('notes', 'like', '%' . $search . '%');
+            });
+        }
+
         $expenses = $query->get();
 
         $sortBy = $request->input('sort_by', 'expense_date');
