@@ -190,6 +190,7 @@
                 const rawDatasets = @json($datasets);
                 const monthsLabels = @json($monthsLabels);
                 const monthKeys = @json($monthKeys);
+                const monthsFullNames = @json($monthsFullNames);
                 const expensesDetails = @json($expensesDetails);
 
                 // 1. Stacked Bar Chart
@@ -227,8 +228,7 @@
                                     const dataset = chart.data.datasets[datasetIndex];
                                     const catName = dataset.label;
                                     const monthKey = monthKeys[index];
-                                    // estrai solo il mese dalla label se ha il totale
-                                    const monthName = (typeof monthsLabels[index] === 'string') ? monthsLabels[index] : monthsLabels[index][0];
+                                    const monthName = monthsFullNames[monthKey] || ((typeof monthsLabels[index] === 'string') ? monthsLabels[index] : monthsLabels[index][0]);
 
                                     renderExpensesTable(catName, monthKey, monthName);
                                 }
@@ -316,8 +316,7 @@
                                     const dataset = chart.data.datasets[datasetIndex];
                                     const catName = dataset.label;
                                     const monthKey = monthKeys[index];
-                                    // estrai solo il mese dalla label se ha il totale
-                                    const monthName = (typeof monthsLabels[index] === 'string') ? monthsLabels[index] : monthsLabels[index][0];
+                                    const monthName = monthsFullNames[monthKey] || ((typeof monthsLabels[index] === 'string') ? monthsLabels[index] : monthsLabels[index][0]);
 
                                     renderExpensesTable(catName, monthKey, monthName);
                                 }
@@ -551,7 +550,14 @@
                     const title = document.getElementById('detailsTableTitle');
                     const tbody = document.getElementById('detailsTableBody');
 
-                    title.textContent = `Dettaglio Spese: ${currentTableCatName} a ${currentTableMonthName}`;
+                    let totalAmount = 0;
+                    currentDetails.forEach(exp => {
+                        const val = parseFloat((exp.amount || '0').split('.').join('').replace(',', '.'));
+                        totalAmount += val;
+                    });
+                    const totalFormatted = totalAmount.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                    title.textContent = `Dettaglio Spese: ${currentTableCatName} a ${currentTableMonthName} (Totale: € ${totalFormatted})`;
                     updateSortIcons();
 
                     if (currentDetails.length === 0) {

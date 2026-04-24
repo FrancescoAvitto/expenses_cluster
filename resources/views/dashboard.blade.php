@@ -190,7 +190,7 @@
             <!-- Table -->
             <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                 <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-lg font-medium text-gray-900">Elenco Spese {{ $periodoLabel }}</h3>
+                    <h3 class="text-lg font-medium text-gray-900" id="expensesTableTitle">Elenco Spese {{ $periodoLabel }} (Totale: € {{ number_format($total, 2, ',', '.') }})</h3>
                     <div class="flex gap-4">
                         <form action="{{ route('import.csv') }}" method="POST" enctype="multipart/form-data" class="hidden" id="importCsvForm">
                             @csrf
@@ -210,62 +210,24 @@
                     <table class="w-full text-sm text-left text-gray-500">
                         <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3">
-                                    <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'search' => $search, 'date_from' => $dateFrom, 'date_to' => $dateTo, 'sort_by' => 'expense_date', 'sort_dir' => $sortBy == 'expense_date' && $sortDir == 'desc' ? 'asc' : 'desc']) }}" class="flex items-center gap-1 hover:text-[#374151]">
-                                        Data
-                                        @if($sortBy == 'expense_date')
-                                            <span>{!! $sortDir == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
-                                        @endif
-                                    </a>
+                                <th class="px-6 py-3 cursor-pointer sortable hover:bg-gray-100 transition-colors" data-sort="date">
+                                    <div class="flex items-center">Data <span id="sort-icon-date" class="ml-1 text-gray-400"></span></div>
                                 </th>
-                                <th class="px-6 py-3">
-                                    <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'search' => $search, 'date_from' => $dateFrom, 'date_to' => $dateTo, 'sort_by' => 'category', 'sort_dir' => $sortBy == 'category' && $sortDir == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center gap-1 hover:text-[#374151]">
-                                        Categoria
-                                        @if($sortBy == 'category')
-                                            <span>{!! $sortDir == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
-                                        @endif
-                                    </a>
+                                <th class="px-6 py-3 cursor-pointer sortable hover:bg-gray-100 transition-colors" data-sort="category">
+                                    <div class="flex items-center">Categoria <span id="sort-icon-category" class="ml-1 text-gray-400"></span></div>
                                 </th>
-                                <th class="px-6 py-3">
-                                    <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'search' => $search, 'date_from' => $dateFrom, 'date_to' => $dateTo, 'sort_by' => 'title', 'sort_dir' => $sortBy == 'title' && $sortDir == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center gap-1 hover:text-[#374151]">
-                                        Titolo
-                                        @if($sortBy == 'title')
-                                            <span>{!! $sortDir == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
-                                        @endif
-                                    </a>
+                                <th class="px-6 py-3 cursor-pointer sortable hover:bg-gray-100 transition-colors" data-sort="title">
+                                    <div class="flex items-center">Titolo <span id="sort-icon-title" class="ml-1 text-gray-400"></span></div>
                                 </th>
-                                <th class="px-6 py-3">
-                                    <a href="{{ route('dashboard', ['month' => $month, 'year' => $year, 'category_id' => $categoryId, 'search' => $search, 'date_from' => $dateFrom, 'date_to' => $dateTo, 'sort_by' => 'amount', 'sort_dir' => $sortBy == 'amount' && $sortDir == 'desc' ? 'asc' : 'desc']) }}" class="flex items-center gap-1 hover:text-[#374151]">
-                                        Importo
-                                        @if($sortBy == 'amount')
-                                            <span>{!! $sortDir == 'asc' ? '&#9650;' : '&#9660;' !!}</span>
-                                        @endif
-                                    </a>
+                                <th class="px-6 py-3 cursor-pointer sortable hover:bg-gray-100 transition-colors" data-sort="amount">
+                                    <div class="flex items-center">Importo <span id="sort-icon-amount" class="ml-1 text-gray-400"></span></div>
                                 </th>
                                 <th class="px-6 py-3">Note</th>
                                 <th class="px-6 py-3">Azioni</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @forelse($expenses as $expense)
-                                <tr class="bg-white border-b hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $expense->expense_date->format('d/m/Y') }}</td>
-                                    <td class="px-6 py-4">{{ $expense->category->name }}</td>
-                                    <td class="px-6 py-4 font-medium text-gray-900">{{ $expense->title }}</td>
-                                    <td class="px-6 py-4 font-bold whitespace-nowrap">€ {{ number_format($expense->amount, 2, ',', '.') }}</td>
-                                    <td class="px-6 py-4 truncate max-w-xs" title="{{ $expense->notes }}">{{ $expense->notes }}</td>
-                                    <td class="px-6 py-4 flex gap-3">
-                                        <a href="{{ route('expenses.edit', $expense) }}" class="text-orange-600 hover:text-orange-500 active:text-orange-700 font-medium transition-colors">Modifica</a>
-                                        <form action="{{ route('expenses.destroy', array_merge(['expense' => $expense->id], request()->query())) }}" method="POST" onsubmit="return confirm('Sei sicuro di voler eliminare questa spesa?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900 font-medium">Elimina</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">Nessuna spesa trovata per il periodo selezionato.</td></tr>
-                            @endforelse
+                        <tbody id="expensesTableBody">
+                            <!-- Popolato via JS -->
                         </tbody>
                     </table>
                 </div>
@@ -483,4 +445,106 @@
         });
     </script>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Table sorting logic
+            const expensesDetails = @json($expensesDetails);
+            let currentSortColumn = 'date';
+            let currentSortDirection = 'desc'; // Default
+
+            document.querySelectorAll('.sortable').forEach(th => {
+                th.addEventListener('click', function () {
+                    const column = this.getAttribute('data-sort');
+                    handleSort(column);
+                });
+            });
+
+            function handleSort(column) {
+                if (currentSortColumn === column) {
+                    currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+                } else {
+                    currentSortColumn = column;
+                    currentSortDirection = 'asc';
+                }
+                renderTableBody();
+            }
+
+            function updateSortIcons() {
+                ['date', 'category', 'title', 'amount'].forEach(col => {
+                    const iconContainer = document.getElementById(`sort-icon-${col}`);
+                    if (iconContainer) {
+                        iconContainer.innerHTML = '';
+                        if (currentSortColumn === col) {
+                            if (currentSortDirection === 'asc') {
+                                iconContainer.innerHTML = `<svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>`;
+                            } else {
+                                iconContainer.innerHTML = `<svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>`;
+                            }
+                        } else {
+                            iconContainer.innerHTML = `<svg class="w-4 h-4 inline opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path></svg>`;
+                        }
+                    }
+                });
+            }
+
+            function renderTableBody() {
+                const tbody = document.getElementById('expensesTableBody');
+                updateSortIcons();
+
+                if (!expensesDetails || expensesDetails.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">Nessuna spesa trovata per il periodo selezionato.</td></tr>';
+                    return;
+                }
+
+                // Ordina l'array
+                let sortedData = [...expensesDetails];
+                sortedData.sort(function (a, b) {
+                    let valA = a[currentSortColumn];
+                    let valB = b[currentSortColumn];
+
+                    if (currentSortColumn === 'date') {
+                        valA = a.date_raw;
+                        valB = b.date_raw;
+                    } else if (currentSortColumn === 'amount') {
+                        valA = parseFloat(a.amount_raw);
+                        valB = parseFloat(b.amount_raw);
+                    } else if (currentSortColumn === 'category' || currentSortColumn === 'title') {
+                        valA = (valA || '').toLowerCase();
+                        valB = (valB || '').toLowerCase();
+                    }
+
+                    if (valA < valB) return currentSortDirection === 'asc' ? -1 : 1;
+                    if (valA > valB) return currentSortDirection === 'asc' ? 1 : -1;
+                    return 0;
+                });
+
+                let html = '';
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+
+                sortedData.forEach(exp => {
+                    html += `
+                        <tr class="bg-white border-b hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">${exp.date}</td>
+                            <td class="px-6 py-4">${exp.category}</td>
+                            <td class="px-6 py-4 font-medium text-gray-900">${exp.title || ''}</td>
+                            <td class="px-6 py-4 font-bold whitespace-nowrap">€ ${exp.amount}</td>
+                            <td class="px-6 py-4 truncate max-w-xs" title="${exp.notes || ''}">${exp.notes || ''}</td>
+                            <td class="px-6 py-4 flex gap-3">
+                                <a href="${exp.edit_url}" class="text-orange-600 hover:text-orange-500 active:text-orange-700 font-medium transition-colors">Modifica</a>
+                                <form action="${exp.destroy_url}" method="POST" onsubmit="return confirm('Sei sicuro di voler eliminare questa spesa?');">
+                                    <input type="hidden" name="_token" value="${csrfToken}">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit" class="text-red-600 hover:text-red-900 font-medium">Elimina</button>
+                                </form>
+                            </td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = html;
+            }
+
+            // Inizializza tabella
+            renderTableBody();
+        });
+    </script>
 </x-app-layout>

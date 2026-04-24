@@ -79,20 +79,23 @@ class DashboardController extends Controller
         $sortBy  = $request->input('sort_by', 'expense_date');
         $sortDir = $request->input('sort_dir', 'desc');
 
-        if ($sortDir === 'asc') {
-            if ($sortBy === 'category') {
-                $expenses = $expenses->sortBy(function($expense) { return strtolower($expense->category->name); });
-            } else {
-                $expenses = $expenses->sortBy(function($expense) use ($sortBy) { return is_string($expense->$sortBy) ? strtolower($expense->$sortBy) : $expense->$sortBy; });
-            }
-        } else {
-            if ($sortBy === 'category') {
-                $expenses = $expenses->sortByDesc(function($expense) { return strtolower($expense->category->name); });
-            } else {
-                $expenses = $expenses->sortByDesc(function($expense) use ($sortBy) { return is_string($expense->$sortBy) ? strtolower($expense->$sortBy) : $expense->$sortBy; });
-            }
-        }
-        $expenses = $expenses->values();
+        // Ordinamento backend di default, l'ordinamento interattivo è in JS
+        $expenses = $expenses->sortByDesc('expense_date')->values();
+
+        $expensesDetails = $expenses->map(function($expense) {
+            return [
+                'id' => $expense->id,
+                'date_raw' => $expense->expense_date->format('Y-m-d'),
+                'date' => $expense->expense_date->format('d/m/Y'),
+                'category' => $expense->category->name,
+                'title' => $expense->title,
+                'amount_raw' => $expense->amount,
+                'amount' => number_format($expense->amount, 2, ',', '.'),
+                'notes' => $expense->notes,
+                'edit_url' => route('expenses.edit', $expense),
+                'destroy_url' => route('expenses.destroy', array_merge(['expense' => $expense->id], request()->query())),
+            ];
+        });
 
         $total = $expenses->sum('amount');
         $categoryMapping = $categories->pluck('id', 'name');
@@ -108,7 +111,7 @@ class DashboardController extends Controller
         }
 
         return view('dashboard', compact(
-            'expenses', 'expensesByCategory', 'total',
+            'expenses', 'expensesDetails', 'expensesByCategory', 'total',
             'month', 'year', 'categories', 'categoryId',
             'categoryMapping', 'categoryColors', 'sortBy', 'sortDir',
             'dateFrom', 'dateTo', 'useRange', 'periodoLabel', 'availableYears', 'search'

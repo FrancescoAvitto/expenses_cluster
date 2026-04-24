@@ -54,8 +54,11 @@ class TrendController extends Controller
 
         $monthKeys = [];
         $monthsLabels = [];
+        $monthsFullNames = [];
         $mesiNomi = [1=>'Gen', 2=>'Feb', 3=>'Mar', 4=>'Apr', 5=>'Mag', 6=>'Giu',
                      7=>'Lug', 8=>'Ago', 9=>'Set', 10=>'Ott', 11=>'Nov', 12=>'Dic'];
+        $mesiNomiEstesi = [1=>'Gennaio', 2=>'Febbraio', 3=>'Marzo', 4=>'Aprile', 5=>'Maggio', 6=>'Giugno',
+                           7=>'Luglio', 8=>'Agosto', 9=>'Settembre', 10=>'Ottobre', 11=>'Novembre', 12=>'Dicembre'];
 
         if ($useRange) {
             $start = Carbon::parse($dateFrom)->startOfMonth();
@@ -66,6 +69,7 @@ class TrendController extends Controller
                 $m = $start->month;
                 $y = $start->year;
                 $monthsLabels[] = $mesiNomi[$m] . ($y != date('Y') ? ' ' . $y : '');
+                $monthsFullNames[$start->format('Y-m')] = $mesiNomiEstesi[$m] . ' ' . $y;
                 $start->addMonth();
             }
             $periodoLabel = Carbon::parse($dateFrom)->format('d/m/Y') . ' – ' . Carbon::parse($dateTo)->format('d/m/Y');
@@ -74,8 +78,10 @@ class TrendController extends Controller
             $maxMonth = $isCurrentYear ? Carbon::now()->month : 12;
 
             for ($i = 1; $i <= $maxMonth; $i++) {
-                $monthKeys[] = sprintf('%04d-%02d', $year, $i);
+                $key = sprintf('%04d-%02d', $year, $i);
+                $monthKeys[] = $key;
                 $monthsLabels[] = $mesiNomi[$i];
+                $monthsFullNames[$key] = $mesiNomiEstesi[$i] . ' ' . $year;
             }
             $periodoLabel = 'Anno ' . $year;
         }
@@ -141,7 +147,7 @@ class TrendController extends Controller
 
         return view('trend.index', compact(
             'year', 'dateFrom', 'dateTo', 'useRange', 'availableYears',
-            'periodoLabel', 'monthsLabels', 'monthKeys', 'datasets', 'expensesDetails',
+            'periodoLabel', 'monthsLabels', 'monthKeys', 'monthsFullNames', 'datasets', 'expensesDetails',
             'averageMonthlyExpense'
         ));
     }
