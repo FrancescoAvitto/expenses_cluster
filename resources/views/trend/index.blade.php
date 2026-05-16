@@ -63,6 +63,35 @@
                                 Quando un intervallo è attivo, il filtro Anno viene ignorato.
                             </p>
 
+                            <div class="mb-5">
+                                <span class="block text-sm font-medium text-gray-700 mb-2">Predefiniti:</span>
+                                <div class="flex flex-wrap gap-2">
+                                    @php
+                                        $today = \Carbon\Carbon::now()->format('Y-m-d');
+                                        $presets = [
+                                            2 => 'Ultimi 2 mesi',
+                                            3 => 'Ultimi 3 mesi',
+                                            6 => 'Ultimi 6 mesi',
+                                            12 => 'Ultimi 12 mesi',
+                                            24 => 'Ultimi 24 mesi',
+                                            36 => 'Ultimi 36 mesi',
+                                        ];
+                                    @endphp
+                                    @foreach($presets as $months => $label)
+                                        @php
+                                            $fromDate = \Carbon\Carbon::now()->subMonths($months - 1)->startOfMonth()->format('Y-m-d');
+                                            $isActive = ($dateFrom === $fromDate && $dateTo === $today);
+                                        @endphp
+                                        <a href="{{ route('trend', ['date_from' => $fromDate, 'date_to' => $today]) }}"
+                                            class="inline-flex items-center px-3 py-1.5 border {{ $isActive ? 'bg-[#374151] text-white border-[#374151]' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50' }} rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-[#374151] transition">
+                                            {{ $label }}
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <hr class="my-4 border-gray-200">
+
                             <div class="flex flex-wrap gap-x-6 gap-y-4 items-end">
                                 {{-- Intervallo personalizzato --}}
                                 <div>
