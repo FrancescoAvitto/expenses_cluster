@@ -73,6 +73,7 @@
                                             3 => 'Ultimi 3 mesi',
                                             6 => 'Ultimi 6 mesi',
                                             12 => 'Ultimi 12 mesi',
+                                            13 => 'Ultimi 13 mesi',
                                             24 => 'Ultimi 24 mesi',
                                             36 => 'Ultimi 36 mesi',
                                         ];
