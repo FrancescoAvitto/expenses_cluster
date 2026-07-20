@@ -98,6 +98,23 @@ class DashboardController extends Controller
         });
 
         $total = $expenses->sum('amount');
+
+        // Calcolo media giornaliera
+        if ($useRange) {
+            // Intervallo personalizzato: numero di giorni tra le due date (incluse)
+            $days = Carbon::parse($dateFrom)->diffInDays(Carbon::parse($dateTo)) + 1;
+        } else {
+            $now = Carbon::now();
+            $selectedDate = Carbon::createFromDate($year, $month, 1);
+            if ($selectedDate->month === $now->month && $selectedDate->year === $now->year) {
+                // Mese corrente: dividi per il giorno odierno
+                $days = $now->day;
+            } else {
+                // Mese passato o futuro: usa i giorni totali del mese
+                $days = $selectedDate->daysInMonth;
+            }
+        }
+        $dailyAverage = $days > 0 ? $total / $days : 0;
         $categoryMapping = $categories->pluck('id', 'name');
         $categoryColors  = $categories->pluck('color', 'name');
 
@@ -114,7 +131,8 @@ class DashboardController extends Controller
             'expenses', 'expensesDetails', 'expensesByCategory', 'total',
             'month', 'year', 'categories', 'categoryId',
             'categoryMapping', 'categoryColors', 'sortBy', 'sortDir',
-            'dateFrom', 'dateTo', 'useRange', 'periodoLabel', 'availableYears', 'search'
+            'dateFrom', 'dateTo', 'useRange', 'periodoLabel', 'availableYears', 'search',
+            'dailyAverage'
         ));
     }
 }

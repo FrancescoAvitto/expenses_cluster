@@ -161,6 +161,8 @@
                     <h3 class="text-lg font-medium text-gray-900">Totale Spese</h3>
                     <p class="mt-1 text-sm text-gray-500">{{ $periodoLabel }}</p>
                     <p class="mt-3 text-4xl font-bold text-[#374151]">€ {{ number_format($total, 2, ',', '.') }}</p>
+                    <p class="mt-3 text-sm text-gray-500">Media giornaliera</p>
+                    <p class="text-xl font-semibold text-[#374151]">€ {{ number_format($dailyAverage, 2, ',', '.') }}</p>
                 </div>
 
                 <!-- Pie Chart -->
