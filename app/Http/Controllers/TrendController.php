@@ -145,10 +145,46 @@ class TrendController extends Controller
         $numberOfMonths = count($monthKeys);
         $averageMonthlyExpense = $numberOfMonths > 0 ? ($totalExpensesAmount / $numberOfMonths) : 0;
 
+        // Calcola totale spese per mese e media giornaliera per mese
+        $monthTotals = array_fill_keys($monthKeys, 0);
+        foreach ($expenses as $expense) {
+            $key = $expense->expense_date->format('Y-m');
+            if (isset($monthTotals[$key])) {
+                $monthTotals[$key] += $expense->amount;
+            }
+        }
+
+        $monthDailyAverages = [];
+        foreach ($monthKeys as $key) {
+            [$y, $m] = explode('-', $key);
+            $daysInMonth = (int) Carbon::create($y, $m, 1)->daysInMonth;
+
+            if ($useRange) {
+                // Se il mese di inizio, conta solo i giorni dal dateFrom
+                $monthStart = Carbon::create($y, $m, 1)->startOfMonth();
+                $monthEnd   = Carbon::create($y, $m, 1)->endOfMonth();
+                $rangeStart = Carbon::parse($dateFrom);
+                $rangeEnd   = Carbon::parse($dateTo);
+                $effectiveStart = $monthStart->lt($rangeStart) ? $rangeStart : $monthStart;
+                $effectiveEnd   = $monthEnd->gt($rangeEnd)   ? $rangeEnd   : $monthEnd;
+                $days = max(1, $effectiveStart->diffInDays($effectiveEnd) + 1);
+            } else {
+                // Per il mese corrente usa solo i giorni trascorsi
+                $now = Carbon::now();
+                if ((int)$y === $now->year && (int)$m === $now->month) {
+                    $days = $now->day;
+                } else {
+                    $days = $daysInMonth;
+                }
+            }
+
+            $monthDailyAverages[$key] = $days > 0 ? ($monthTotals[$key] / $days) : 0;
+        }
+
         return view('trend.index', compact(
             'year', 'dateFrom', 'dateTo', 'useRange', 'availableYears',
             'periodoLabel', 'monthsLabels', 'monthKeys', 'monthsFullNames', 'datasets', 'expensesDetails',
-            'averageMonthlyExpense'
+            'averageMonthlyExpense', 'monthDailyAverages'
         ));
     }
 }

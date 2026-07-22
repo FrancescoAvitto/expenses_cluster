@@ -222,6 +222,7 @@
                 const monthKeys = @json($monthKeys);
                 const monthsFullNames = @json($monthsFullNames);
                 const expensesDetails = @json($expensesDetails);
+                const monthDailyAverages = @json($monthDailyAverages);
 
                 // 1. Stacked Bar Chart
                 const barCtx = document.getElementById('trendStackedBarChart');
@@ -238,8 +239,11 @@
                         });
                     });
                     const barMonthsLabels = monthsLabels.map((lbl, idx) => {
+                        const key = monthKeys[idx];
                         const totalText = '€ ' + monthTotals[idx].toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                        return [totalText, lbl];
+                        const dailyAvg = monthDailyAverages[key] ?? 0;
+                        const dailyText = '(' + dailyAvg.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' m/g)';
+                        return [lbl, totalText, dailyText];
                     });
 
                     const barChart = new Chart(barCtx, {
